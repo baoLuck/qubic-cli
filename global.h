@@ -105,3 +105,10 @@ uint8_t g_msVaultVaultName[32] = { 0 };
 char* g_msVaultDestination = nullptr;
 char* g_msVaultPublicId = nullptr;
 char* g_msVaultOwnersCommaSeparated = nullptr;
+
+// escrow
+int64_t g_counterIncreaseValue = 0;
+char* g_escrowAcceptorId = nullptr;
+char* g_escrow_offeredAssetsCommaSeparated = nullptr;
+char* g_escrow_requestedAssetsCommaSeparated = nullptr;
+int64_t g_escrow_dealIndex = 0;

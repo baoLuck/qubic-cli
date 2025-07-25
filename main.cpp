@@ -17,6 +17,7 @@
 #include "qvault.h"
 #include "msvault.h"
 #include "testUtils.h"
+#include "random.h"
 
 int run(int argc, char* argv[])
 {
@@ -607,6 +608,31 @@ int run(int argc, char* argv[])
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             msvaultGetVaultOwners(g_nodeIp, g_nodePort, g_msVaultID);
+            break;
+        }
+        case ESCROW_CREATE_DEAL_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            escrowCreateDeal(g_nodeIp, g_nodePort, g_seed,
+                g_counterIncreaseValue,
+                g_escrowAcceptorId,
+                g_escrow_offeredAssetsCommaSeparated,
+                g_escrow_requestedAssetsCommaSeparated);
+            break;
+        }
+        case ESCROW_GET_DEALS_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            escrowGetDeals(g_nodeIp, g_nodePort, g_seed);
+            break;
+        }
+        case ESCROW_ACCEPT_DEAL_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            escrowAcceptDeal(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
             break;
         }
         case TEST_QPI_FUNCTIONS_OUTPUT:
