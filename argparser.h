@@ -280,6 +280,22 @@ void print_help()
     printf("\t\tGet incoming transfer amounts from either TESTEXB (\"B\") or TESTEXC (\"C\"). Requires the TESTEXB and TESTEXC SCs to be enabled.\n");
     printf("\t-testbidinipothroughcontract <B_OR_C> <CONTRACT_INDEX> <NUMBER_OF_SHARE> <PRICE_PER_SHARE>\n");
     printf("\t\tBid in an IPO either as TESTEXB (\"B\") or as TESTEXC (\"C\"). Requires the TESTEXB and TESTEXC SCs to be enabled.\n");
+
+    printf("\n[ESCROW COMMANDS]\n");
+    printf("\t-escrowcreatedeal <COUNTER> <ACCEPTOR_ID> <OFFERED_ASSETS> <REQUESTED_ASSETS>\n");
+    printf("\t\tCreate deal.\n");
+    printf("\t\t<COUNTER> is unused and will be deleted.\n");
+    printf("\t\t<ACCEPTOR_ID> is identity to which the deal is offered.\n");
+    printf("\t\t<OFFERED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
+    printf("\t\t<REQUESTED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
+    printf("\t-escrowgetdeals\n");
+    printf("\t\tGet deals. No parameters, seed required.\n");
+    printf("\t-escrowacceptdeal <DEAL_INDEX>\n");
+    printf("\t\tAccept deal with index. The deal index can be obtained through -escrowgetdeals.\n");
+    printf("\t-escrowmakedealopened <DEAL_INDEX>\n");
+    printf("\t\tRemove a specific acceptor for the deal and make it open to all users. The deal index can be obtained through -escrowgetdeals.\n");
+    printf("\t-escrowcanceldeal <DEAL_INDEX>\n");
+    printf("\t\tCancel the deal. The deal index can be obtained through -escrowgetdeals.\n");
 }
 
 static long long charToNumber(char* a)
@@ -1522,6 +1538,57 @@ void parseArgument(int argc, char** argv)
             return;
         }
 
+        /*************************
+         **** ESCROW COMMANDS ****
+         *************************/
+
+        if (strcmp(argv[i], "-escrowcreatedeal") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(4)
+            g_cmd = ESCROW_CREATE_DEAL_CMD;
+            g_counterIncreaseValue = charToNumber(argv[i + 1]);
+            g_escrowAcceptorId = argv[i + 2];
+            g_escrow_offeredAssetsCommaSeparated = argv[i + 3];
+            g_escrow_requestedAssetsCommaSeparated = argv[i + 4];
+            i += 5;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-escrowgetdeals") == 0)
+        {
+            g_cmd = ESCROW_GET_DEALS_CMD;
+            i++;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-escrowacceptdeal") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = ESCROW_ACCEPT_DEAL_CMD;
+            g_escrow_dealIndex = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-escrowmakedealopened") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = ESCROW_MAKE_DEAL_OPENED_CMD;
+            g_escrow_dealIndex = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-escrowcanceldeal") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = ESCROW_CANCEL_DEAL_CMD;
+            g_escrow_dealIndex = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+    
         /**************************
          **** TESTING COMMANDS ****
          **************************/
