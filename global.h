@@ -151,3 +151,10 @@ uint64_t g_qutil_get_result_poll_id = 0;
 char* g_qutil_get_polls_creator_address = nullptr;
 uint64_t g_qutil_get_poll_info_poll_id = 0;
 uint64_t g_qutil_cancel_poll_id = 0;
+
+// escrow
+int64_t g_counterIncreaseValue = 0;
+char* g_escrowAcceptorId = nullptr;
+char* g_escrow_offeredAssetsCommaSeparated = nullptr;
+char* g_escrow_requestedAssetsCommaSeparated = nullptr;
+int64_t g_escrow_dealIndex = 0;

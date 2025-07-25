@@ -26,6 +26,7 @@
 #include "qswap_struct.h"
 #include "testUtils.h"
 #include "qutil.h"
+#include "random.h"
 
 #define DEFAULT_TIMEOUT_MSEC 1000
 
@@ -345,6 +346,9 @@ template MsVaultGetVaultName_output QubicConnection::receivePacketWithHeaderAs<M
 template MsVaultGetRevenueInfo_output QubicConnection::receivePacketWithHeaderAs<MsVaultGetRevenueInfo_output>();
 template MsVaultGetFees_output QubicConnection::receivePacketWithHeaderAs<MsVaultGetFees_output>();
 template MsVaultGetVaultOwners_output QubicConnection::receivePacketWithHeaderAs<MsVaultGetVaultOwners_output>();
+
+// ESCROW
+template EscrowGetDeals_output QubicConnection::receivePacketWithHeaderAs<EscrowGetDeals_output>();
 
 // TESTING
 template QpiFunctionsOutput QubicConnection::receivePacketWithHeaderAs<QpiFunctionsOutput>();
