@@ -348,7 +348,7 @@ template MsVaultGetFees_output QubicConnection::receivePacketWithHeaderAs<MsVaul
 template MsVaultGetVaultOwners_output QubicConnection::receivePacketWithHeaderAs<MsVaultGetVaultOwners_output>();
 
 // ESCROW
-template EscrowGetDeals_output QubicConnection::receivePacketWithHeaderAs<EscrowGetDeals_output>();
+template GetRandom_output QubicConnection::receivePacketWithHeaderAs<GetRandom_output>();
 
 // TESTING
 template QpiFunctionsOutput QubicConnection::receivePacketWithHeaderAs<QpiFunctionsOutput>();

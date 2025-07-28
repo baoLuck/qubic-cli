@@ -1836,49 +1836,10 @@ void parseArgument(int argc, char** argv)
          **** ESCROW COMMANDS ****
          *************************/
 
-        if (strcmp(argv[i], "-escrowcreatedeal") == 0)
+        if (strcmp(argv[i], "-randomget") == 0)
         {
-            CHECK_NUMBER_OF_PARAMETERS(4)
-            g_cmd = ESCROW_CREATE_DEAL_CMD;
-            g_counterIncreaseValue = charToNumber(argv[i + 1]);
-            g_escrowAcceptorId = argv[i + 2];
-            g_escrow_offeredAssetsCommaSeparated = argv[i + 3];
-            g_escrow_requestedAssetsCommaSeparated = argv[i + 4];
-            i += 5;
-            CHECK_OVER_PARAMETERS
-            return;
-        }
-        if (strcmp(argv[i], "-escrowgetdeals") == 0)
-        {
-            g_cmd = ESCROW_GET_DEALS_CMD;
+            g_cmd = RANDOM_GET_CMD;
             i++;
-            CHECK_OVER_PARAMETERS
-            return;
-        }
-        if (strcmp(argv[i], "-escrowacceptdeal") == 0)
-        {
-            CHECK_NUMBER_OF_PARAMETERS(1)
-            g_cmd = ESCROW_ACCEPT_DEAL_CMD;
-            g_escrow_dealIndex = charToNumber(argv[i + 1]);
-            i += 2;
-            CHECK_OVER_PARAMETERS
-            return;
-        }
-        if (strcmp(argv[i], "-escrowmakedealopened") == 0)
-        {
-            CHECK_NUMBER_OF_PARAMETERS(1)
-            g_cmd = ESCROW_MAKE_DEAL_OPENED_CMD;
-            g_escrow_dealIndex = charToNumber(argv[i + 1]);
-            i += 2;
-            CHECK_OVER_PARAMETERS
-            return;
-        }
-        if (strcmp(argv[i], "-escrowcanceldeal") == 0)
-        {
-            CHECK_NUMBER_OF_PARAMETERS(1)
-            g_cmd = ESCROW_CANCEL_DEAL_CMD;
-            g_escrow_dealIndex = charToNumber(argv[i + 1]);
-            i += 2;
             CHECK_OVER_PARAMETERS
             return;
         }

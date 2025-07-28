@@ -839,43 +839,11 @@ int run(int argc, char* argv[])
                                     g_qswap_quote_amount);
             }
             break;
-        case ESCROW_CREATE_DEAL_CMD:
+        case RANDOM_GET_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowCreateDeal(g_nodeIp, g_nodePort, g_seed,
-                g_counterIncreaseValue,
-                g_escrowAcceptorId,
-                g_escrow_offeredAssetsCommaSeparated,
-                g_escrow_requestedAssetsCommaSeparated);
-            break;
-        }
-        case ESCROW_GET_DEALS_CMD:
-        {
-            sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            escrowGetDeals(g_nodeIp, g_nodePort, g_seed);
-            break;
-        }
-        case ESCROW_ACCEPT_DEAL_CMD:
-        {
-            sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            escrowAcceptDeal(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
-            break;
-        }
-        case ESCROW_MAKE_DEAL_OPENED_CMD:
-        {
-            sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            escrowMakeDealOpened(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
-            break;
-        }
-        case ESCROW_CANCEL_DEAL_CMD:
-        {
-            sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            escrowCancelDeal(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
+            randomGet(g_nodeIp, g_nodePort, g_seed);
             break;
         }
         case TEST_QPI_FUNCTIONS_OUTPUT:
