@@ -8,7 +8,9 @@ void printBalance(const char* publicIdentity, const char* nodeIp, int nodePort);
 void makeStandardTransaction(const char* nodeIp, int nodePort, const char* seed,
                              const char* targetIdentity, const uint64_t amount, uint32_t scheduledTickOffset,
                              int waitUntilFinish);
-
+void makeManyStandardTransactions(const char* nodeIp, int nodePort, const char* targetIdentity, const uint64_t amount,
+                                  const uint64_t txCount,
+                                  int waitUntilFinish);
 void makeStandardTransactionInTick(const char* nodeIp, int nodePort, const char* seed,
                              const char* targetIdentity, const uint64_t amount, uint32_t txTick,
                              int waitUntilFinish);

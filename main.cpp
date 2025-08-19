@@ -74,6 +74,12 @@ int run(int argc, char* argv[])
             sanityCheckTxAmount(g_txAmount);
             makeStandardTransactionInTick(g_nodeIp, g_nodePort, g_seed, g_targetIdentity, g_txAmount, g_txTick, g_waitUntilFinish);
             break;
+        case SEND_MANY_TX:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckIdentity(g_targetIdentity);
+            sanityCheckTxAmount(g_txAmount);
+            makeManyStandardTransactions(g_nodeIp, g_nodePort, g_targetIdentity, g_txAmount, g_txCount, g_waitUntilFinish);
+            break;
         case SEND_CUSTOM_TX:
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);

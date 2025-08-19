@@ -21,6 +21,7 @@ const char* g_paramString2 = "";
 bool g_force = false;
 
 int64_t g_txAmount = 0;
+int64_t g_txCount = 0;
 uint16_t g_txType = 0;
 uint32_t g_txTick = 0;
 int g_nodePort = DEFAULT_NODE_PORT;
