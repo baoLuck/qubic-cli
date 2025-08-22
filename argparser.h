@@ -56,8 +56,8 @@ void print_help()
     printf("\t\tPerform a standard transaction to sendData <AMOUNT> qubic to <TARGET_IDENTITY>. A valid private key and node ip/port are required.\n");
     printf("\t-sendtoaddressintick <TARGET_IDENTITY> <AMOUNT> <TICK>\n");
     printf("\t\tPerform a standard transaction to sendData <AMOUNT> qubic to <TARGET_IDENTITY> in a specific <TICK>. A valid private key and node ip/port are required.\n");
-    printf("\t-sendmanytoaddress <TARGET_IDENTITY> <AMOUNT> <TX_COUNT>\n");
-    printf("\t\tPerform <TX_COUNT> standard transactions to sendData <AMOUNT> qubic from different identities to <TARGET_IDENTITY>.\n");
+    printf("\t-sendmanytoaddress <TARGET_IDENTITY> <AMOUNT> <TX_COUNT> <EXECUTION_TICK>\n");
+    printf("\t\tPerform <TX_COUNT> standard transactions to sendData <AMOUNT> qubic from different identities to <TARGET_IDENTITY> on <EXECUTION_TICK> tick.\n");
     printf("\t\tPrivate keys that will be used to sign transactions must be saved in the seeds.txt file and stored one key per line. The maximum number of <TX_COUNT> is 16777216 (2^24). A valid node ip/port are required.\n");
 
     printf("\n[QUTIL COMMANDS]\n");
@@ -390,6 +390,14 @@ static long long charToNumber(char* a)
     return retVal;
 }
 
+static uint32_t charToU32Number(char* a)
+{
+    uint32_t retVal = 0;
+    char *endptr = nullptr;
+    retVal = strtoul(a, &endptr, 10);
+    return retVal;
+}
+
 static uint64_t charToUnsignedNumber(char* a)
 {
     uint64_t retVal = 0;
@@ -633,12 +641,13 @@ void parseArgument(int argc, char** argv)
         }
         if (strcmp(argv[i], "-sendmanytoaddress") == 0)
         {
-            CHECK_NUMBER_OF_PARAMETERS(3)
+            CHECK_NUMBER_OF_PARAMETERS(4)
             g_cmd = SEND_MANY_TX;
             g_targetIdentity = argv[i + 1];
             g_txAmount = charToNumber(argv[i + 2]);
             g_txCount = charToNumber(argv[i + 3]);
-            i += 4;
+            g_txTick = charToU32Number(argv[i + 4]);
+            i += 5;
             CHECK_OVER_PARAMETERS
             break;
         }

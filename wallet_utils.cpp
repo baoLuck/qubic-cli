@@ -258,7 +258,7 @@ void makeStandardTransaction(const char* nodeIp, int nodePort, const char* seed,
 }
 
 void makeManyStandardTransactions(const char* nodeIp, int nodePort, const char* targetIdentity,
-                                  const uint64_t amount, const uint64_t txCount, int waitUntilFinish)
+                                  const uint64_t amount, const uint64_t txCount, const uint32_t txTick)
 {
     std::ifstream file("seeds.txt");
     if (!file.is_open())
@@ -268,21 +268,26 @@ void makeManyStandardTransactions(const char* nodeIp, int nodePort, const char* 
     }
 
     auto qc = make_qc(nodeIp, nodePort);
-    uint32_t currentTick = getTickNumberFromNode(qc);
     uint64_t limit = std::min<uint64_t>(txCount, 16777216ULL);
     std::string seed;
+    uint8_t destPublicKey[32] = { 0 };
+    getPublicKeyFromIdentity(targetIdentity, destPublicKey);
+
+    const size_t batchSize = 1000;
+    std::vector<uint8_t> batchBuffer;
+    const size_t packetSize = sizeof(RequestResponseHeader) + sizeof(Transaction) + 64;
+    batchBuffer.reserve(batchSize * packetSize);
+
     for (uint64_t i = 0; i < limit && std::getline(file, seed); i++)
     {
         uint8_t subseed[32] = { 0 };
         uint8_t privateKey[32] = { 0 };
         uint8_t sourcePublicKey[32] = { 0 };
-        uint8_t destPublicKey[32] = { 0 };
         uint8_t digest[32] = { 0 };
         uint8_t signature[64] = { 0 };
         getSubseedFromSeed((uint8_t*) seed.c_str(), subseed);
         getPrivateKeyFromSubSeed(subseed, privateKey);
         getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
-        getPublicKeyFromIdentity(targetIdentity, destPublicKey);
 
         struct {
             RequestResponseHeader header;
@@ -292,7 +297,7 @@ void makeManyStandardTransactions(const char* nodeIp, int nodePort, const char* 
         memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
         memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
         packet.transaction.amount = amount;
-        packet.transaction.tick = currentTick + 10;
+        packet.transaction.tick = txTick;
         packet.transaction.inputType = 0;
         packet.transaction.inputSize = 0;
         KangarooTwelve((unsigned char*)&packet.transaction,
@@ -304,9 +309,23 @@ void makeManyStandardTransactions(const char* nodeIp, int nodePort, const char* 
         packet.header.setSize(sizeof(packet.header) + sizeof(packet.transaction) + 64);
         packet.header.zeroDejavu();
         packet.header.setType(BROADCAST_TRANSACTION);
-        qc->sendData((uint8_t*)&packet, packet.header.size());
+
+        batchBuffer.insert(batchBuffer.end(), reinterpret_cast<uint8_t*>(&packet), reinterpret_cast<uint8_t*>(&packet) + sizeof(packet));
+
+        if ((i + 1) % batchSize == 0)
+        {
+            qc->sendData(batchBuffer.data(), (int) batchBuffer.size());
+            batchBuffer.clear();
+        }
     }
-    LOG("Txs will be executed on %ld tick\n", currentTick + 10);
+
+    if (!batchBuffer.empty())
+    {
+        qc->sendData(batchBuffer.data(), (int) batchBuffer.size());
+        batchBuffer.clear();
+    }
+
+    LOG("Txs will be executed on %ld tick\n", txTick);
     file.close();
 }
 

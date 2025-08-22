@@ -9,8 +9,7 @@ void makeStandardTransaction(const char* nodeIp, int nodePort, const char* seed,
                              const char* targetIdentity, const uint64_t amount, uint32_t scheduledTickOffset,
                              int waitUntilFinish);
 void makeManyStandardTransactions(const char* nodeIp, int nodePort, const char* targetIdentity, const uint64_t amount,
-                                  const uint64_t txCount,
-                                  int waitUntilFinish);
+                                  const uint64_t txCount, const uint32_t txTick);
 void makeStandardTransactionInTick(const char* nodeIp, int nodePort, const char* seed,
                              const char* targetIdentity, const uint64_t amount, uint32_t txTick,
                              int waitUntilFinish);

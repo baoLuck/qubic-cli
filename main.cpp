@@ -78,7 +78,7 @@ int run(int argc, char* argv[])
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckIdentity(g_targetIdentity);
             sanityCheckTxAmount(g_txAmount);
-            makeManyStandardTransactions(g_nodeIp, g_nodePort, g_targetIdentity, g_txAmount, g_txCount, g_waitUntilFinish);
+            makeManyStandardTransactions(g_nodeIp, g_nodePort, g_targetIdentity, g_txAmount, g_txCount, g_txTick);
             break;
         case SEND_CUSTOM_TX:
             sanityCheckNode(g_nodeIp, g_nodePort);
