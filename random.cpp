@@ -17,11 +17,14 @@
 #define ESCROW_ACCEPT_DEAL 3
 #define ESCROW_MAKE_DEAL_OPENED 4
 #define ESCROW_CANCEL_DEAL 5
+#define ESCROW_GET_FREE_ASSET 6
 
-constexpr uint64_t ESCROW_CREATE_DEAL_FEE = 1000000ULL;
-constexpr uint64_t ESCROW_ACCEPT_DEAL_FEE = 1000000ULL;
-constexpr uint64_t ESCROW_MAKE_DEAL_OPENED_FEE = 500000ULL;
-constexpr uint64_t ESCROW_CANCEL_DEAL_FEE = 500000ULL;
+constexpr uint64_t ESCROW_CREATE_DEAL_FEE = 200000ULL;
+constexpr uint64_t ESCROW_ACCEPT_DEAL_FEE = 200000ULL;
+constexpr uint64_t ESCROW_MAKE_DEAL_OPENED_FEE = 1ULL;
+constexpr uint64_t ESCROW_CANCEL_DEAL_FEE = 1ULL;
+constexpr uint64_t ESCROW_ADDITIONAL_CREATION_FEE = 200; // 2%
+constexpr auto ESCROW_SC_ADDRESS = "DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANMIG";
 
 void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     int64_t delta,
@@ -70,7 +73,7 @@ void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     memset(&packet, 0, sizeof(packet));
     memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
     memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
-    packet.transaction.amount = ESCROW_CREATE_DEAL_FEE + input.offeredQU;
+    packet.transaction.amount = ESCROW_CREATE_DEAL_FEE + input.offeredQU + (input.offeredQU * ESCROW_ADDITIONAL_CREATION_FEE / 10000ULL);
     uint32_t currentTick = getTickNumberFromNode(qc);
     packet.transaction.tick = currentTick + 5;
     packet.transaction.inputType = ESCROW_CREATE_DEAL;
@@ -119,7 +122,7 @@ int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char
     {
         if (output.proposedDeals[i].index == index)
         {
-            return output.proposedDeals[i].deal.requestedQU;
+            return output.proposedDeals[i].requestedQU;
         }
     }
 
@@ -127,7 +130,7 @@ int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char
     {
         if (output.openedDeals[i].index == index)
         {
-            return output.openedDeals[i].deal.requestedQU;
+            return output.openedDeals[i].requestedQU;
         }
     }
 
@@ -190,7 +193,8 @@ void escrowAcceptDeal(const char* nodeIp, int nodePort, const char* seed, const 
         LOG("Failed to get requestedQU for deal with index: %d", index);
         return;
     }
-    escrowOperateDeal(nodeIp, nodePort, seed, index, ESCROW_ACCEPT_DEAL_FEE + requestedQU, ESCROW_ACCEPT_DEAL);
+    uint64_t fee = ESCROW_ACCEPT_DEAL_FEE + requestedQU + (requestedQU * ESCROW_ADDITIONAL_CREATION_FEE / 10000ULL);
+    escrowOperateDeal(nodeIp, nodePort, seed, index, fee, ESCROW_ACCEPT_DEAL);
 }
 
 void escrowMakeDealOpened(const char* nodeIp, int nodePort, const char* seed, const int64_t index)
@@ -268,9 +272,81 @@ void escrowOperateDeal(const char* nodeIp, int nodePort, const char* seed, const
     LOG("to check your tx confirmation status\n");
 }
 
+void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, const char* asset_name, const char* issuer)
+{
+    EscrowGetFreeAsset_input input;
+    uint8_t subseed[32] = { 0 };
+    uint8_t privateKey[32] = { 0 };
+    uint8_t sourcePublicKey[32] = { 0 };
+    getSubseedFromSeed((uint8_t*) seed, subseed);
+    getPrivateKeyFromSubSeed(subseed, privateKey);
+    //getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
+    getPublicKeyFromIdentity(issuer, sourcePublicKey);
 
+    memset(input.owner, 0, 32);
+    memcpy(input.owner, sourcePublicKey, 32);
+    memset(input.issuer, 0, 32);
+    memcpy(input.issuer, sourcePublicKey, 32);
+    memset(&input.name, 0, 8);
+    memcpy(&input.name, asset_name, 8);
 
-int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, int64_t& QUAmount) 
+    auto qc = make_qc(nodeIp, nodePort);
+    if (!qc) {
+        LOG("Failed to connect to node.\n");
+        return;
+    }
+
+    struct {
+        RequestResponseHeader header;
+        RequestContractFunction rcf;
+        EscrowGetFreeAsset_input in;
+    } req;
+
+    memset(&req, 0, sizeof(req));
+    req.rcf.contractIndex = RANDOM_CONTRACT_INDEX;
+    req.rcf.inputType = ESCROW_GET_FREE_ASSET;
+    req.rcf.inputSize = sizeof(input);
+    memcpy(&req.in, &input, sizeof(input));
+    req.header.setSize(sizeof(req.header) + sizeof(req.rcf) + sizeof(input));
+    req.header.randomizeDejavu();
+    req.header.setType(RequestContractFunction::type());
+
+    for (int i = 0; i < 32; i++) {
+        printf("%02X ", req.in.owner[i]);
+    }
+
+    printf("\n");
+
+    for (int i = 0; i < 32; i++) {
+        printf("%02X ", req.in.issuer[i]);
+    }
+
+    char iden1[61];
+    char iden2[61];
+    memset(iden1, 0, 61);
+    memset(iden2, 0, 61);
+    // getIdentityFromPublicKey(req.in.owner, iden1, false);
+    // getIdentityFromPublicKey(req.in.issuer, iden2, false);
+    memcpy(req.in.owner, iden1, sizeof(req.in.owner));
+    memcpy(req.in.issuer, iden2, sizeof(req.in.owner));
+    LOG("%s %s %s\n", req.in.owner, req.in.issuer, std::string(reinterpret_cast<const char*>(&req.in.name)));
+
+    qc->sendData((uint8_t*)&req, req.header.size());
+
+    EscrowGetFreeAsset_output output;
+    memset(&output, 0, sizeof(output));
+    try {
+        output = qc->receivePacketWithHeaderAs<EscrowGetFreeAsset_output>();
+    }
+    catch (std::logic_error) {
+        LOG("Failed to get deals.\n");
+        return;
+    }
+
+    LOG("Free asset amount: %lld\n", output.freeAmount);
+}
+
+int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, uint64_t& QUAmount) 
 {
     std::string QUAmountStr;
     std::string assetsStr;
@@ -300,7 +376,7 @@ int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAm
         {
             if (!std::getline(ssAsset, part, ','))
             {
-                LOG("BAD REQ");
+                LOG("Failed to parse assets");
                 return 0;
             }
 
@@ -327,59 +403,61 @@ int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAm
     return count;
 }
 
-void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::DealEntity* entities, const char* dealTypeName, const char* p1, const char* p2)
+void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, const char* dealTypeName, const char* p1, const char* p2)
 {
     if (dealsAmount <= 0)
     {
         return;
     }
     LOG("%s", dealTypeName);
-    LOG("%s\n", std::string().assign(222, '-').c_str());
-    LOG("%-66s|%-24s%15s%-38s|%-24s%15s%s\n", "", "", "Offered assets", p1, "", "Requested assets", p2);
-    LOG("%s\n", std::string().assign(222, '-').c_str());
-    LOG("%-3s|%-62s|%-14s|%-62s|%-14s|%-60s\n", "#", " Acceptor ID", " QU Amount", " Asset (Issuer / Name / Amount)", " QU Amount", " Asset (Issuer / Name / Amount)");
-    LOG("%s\n", std::string().assign(222, '-').c_str());
+    LOG("%s\n", std::string().assign(237, '-').c_str());
+    LOG("%-81s|%-24s%15s%-38s|%-24s%15s%s\n", "", "", "Offered assets", p1, "", "Requested assets", p2);
+    LOG("%s\n", std::string().assign(237, '-').c_str());
+    LOG("%-18s|%-62s|%-14s|%-62s|%-14s|%-60s\n", "# (Index / Epoch)", " Acceptor ID", " QU Amount", " Asset (Issuer / Name / Amount)", " QU Amount", " Asset (Issuer / Name / Amount)");
+    LOG("%s\n", std::string().assign(237, '-').c_str());
     for (int i = 0; i < dealsAmount; i++)
     {
         char iden[61];
         memset(iden, 0, 61);
-        getIdentityFromPublicKey(entities[i].deal.acceptorId, iden, false);
+        getIdentityFromPublicKey(deals[i].acceptorId, iden, false);
         for (int j = 0; j < 4; j++)
         {
-            bool isOffered = j < entities[i].deal.offeredAssetsAmount;
-            bool isRequested = j < entities[i].deal.requestedAssetsAmount;
+            bool isOffered = j < deals[i].offeredAssetsAmount;
+            bool isRequested = j < deals[i].requestedAssetsAmount;
             if (!isOffered && !isRequested && j > 0)
             {
                 continue;
             }
             char iden1[61];
             memset(iden1, 0, 61);
-            getIdentityFromPublicKey(entities[i].deal.offeredAssets[j].issuer, iden1, false);
+            getIdentityFromPublicKey(deals[i].offeredAssets[j].issuer, iden1, false);
             char iden2[61];
             memset(iden2, 0, 61);
-            getIdentityFromPublicKey(entities[i].deal.requestedAssets[j].issuer, iden2, false);
-            LOG("%-3s%-2s%-61s| %-13s| %-61s| %-13s| %-59s\n%67s%15s %-60s |%15s %-60s\n%67s%15s %-60s |%15s %-60s\n",
-                (j == 0) ? std::to_string(entities[i].index).c_str() : "",
+            getIdentityFromPublicKey(deals[i].requestedAssets[j].issuer, iden2, false);
+            LOG("%-18s%-2s%-61s| %-13s| %-61s| %-13s| %-59s\n%-18s%2s%62s%15s %-60s |%15s %-60s\n%82s%15s %-60s |%15s %-60s\n",
+                (j == 0) ? std::to_string(deals[i].index).c_str() : "",
                 (j == 0) ? "| " : "  ",
-                (j == 0 && strcmp(iden, "DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANMIG") != 0) ? iden : "",
-                (j == 0) ? std::to_string(entities[i].deal.offeredQU).c_str() : "",
+                (j == 0 && strcmp(iden, ESCROW_SC_ADDRESS) != 0) ? iden : "",
+                (j == 0) ? std::to_string(deals[i].offeredQU).c_str() : "",
                 isOffered ? iden1 : "",
-                (j == 0) ? std::to_string(entities[i].deal.requestedQU).c_str() : "",
+                (j == 0) ? std::to_string(deals[i].requestedQU).c_str() : "",
                 isRequested ? iden2 : "",
+                (j == 0) ? std::to_string(deals[i].creationEpoch).c_str() : "",
+                (j == 0) ? "| " : "  ",
                 "|",
                 "|",
-                isOffered ? std::string(reinterpret_cast<const char*>(&entities[i].deal.offeredAssets[j].name), 8) : "",
+                isOffered ? std::string(reinterpret_cast<const char*>(&deals[i].offeredAssets[j].name), 8) : "",
                 "|",
-                isRequested ? std::string(reinterpret_cast<const char*>(&entities[i].deal.requestedAssets[j].name), 8) : "",
+                isRequested ? std::string(reinterpret_cast<const char*>(&deals[i].requestedAssets[j].name), 8) : "",
                 "|",
                 "|",
-                isOffered ? std::to_string(entities[i].deal.offeredAssets[j].amount) : "",
+                isOffered ? std::to_string(deals[i].offeredAssets[j].amount) : "",
                 "|",
-                isRequested ? std::to_string(entities[i].deal.requestedAssets[j].amount) : "");
+                isRequested ? std::to_string(deals[i].requestedAssets[j].amount) : "");
 
-            if (j + 1 < entities[i].deal.offeredAssetsAmount || j + 1 < entities[i].deal.requestedAssetsAmount)
+            if (j + 1 < deals[i].offeredAssetsAmount || j + 1 < deals[i].requestedAssetsAmount)
             {
-                LOG("%67s%15s%s|%15s%s\n",
+                LOG("%82s%15s%s|%15s%s\n",
                     "|",
                     "|",
                     std::string().assign(62, '-').c_str(),
@@ -387,6 +465,6 @@ void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::DealEntity* en
                     std::string().assign(62, '-').c_str());
             }
         }
-        LOG("%s\n", std::string().assign(222, '-').c_str());
+        LOG("%s\n", std::string().assign(237, '-').c_str());
     }
 }

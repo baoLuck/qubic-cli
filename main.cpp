@@ -649,6 +649,13 @@ int run(int argc, char* argv[])
             escrowCancelDeal(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
             break;
         }
+        case ESCROW_GET_FREE_ASSET_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            escrowGetFreeAsset(g_nodeIp, g_nodePort, g_seed, g_escrow_asset_name, g_escrow_issuer);
+            break;
+        }
         case TEST_QPI_FUNCTIONS_OUTPUT:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);

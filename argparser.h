@@ -296,6 +296,8 @@ void print_help()
     printf("\t\tRemove a specific acceptor for the deal and make it open to all users. The deal index can be obtained through -escrowgetdeals.\n");
     printf("\t-escrowcanceldeal <DEAL_INDEX>\n");
     printf("\t\tCancel the deal. The deal index can be obtained through -escrowgetdeals.\n");
+    printf("\t-escrowgetfreeasset <ASSET_NAME> <ISSUER>\n");
+    printf("\t\tGet free asset amount.\n");
 }
 
 static long long charToNumber(char* a)
@@ -1585,6 +1587,16 @@ void parseArgument(int argc, char** argv)
             g_cmd = ESCROW_CANCEL_DEAL_CMD;
             g_escrow_dealIndex = charToNumber(argv[i + 1]);
             i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-escrowgetfreeasset") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = ESCROW_GET_FREE_ASSET_CMD;
+            g_escrow_asset_name = argv[i + 1];
+            g_escrow_issuer = argv[i + 2];
+            i += 3;
             CHECK_OVER_PARAMETERS
             return;
         }
