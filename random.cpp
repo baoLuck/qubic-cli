@@ -390,17 +390,6 @@ int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAm
             {
                 memset(&outputArray[count].name, 0, 8);
                 memcpy(&outputArray[count].name, part.c_str(), std::min<size_t>(part.size(), 8));
-
-                std::string s(reinterpret_cast<const char*>(&outputArray[count].name), 8);
-                std::cout << "As string: [" << s << "]" << std::endl;
-
-                unsigned char* p = reinterpret_cast<unsigned char*>(&outputArray[count].name);
-                std::cout << "Bytes in memory: ";
-                for (int i = 0; i < 8; i++) {
-                    std::cout << std::hex << std::setw(2) << std::setfill('0')
-                            << static_cast<int>(p[i]) << " ";
-                }
-                std::cout << std::dec << std::endl;
             }
             else if (i == 1)
             {
@@ -485,16 +474,5 @@ void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, c
             }
         }
         LOG("%s\n", std::string().assign(237, '-').c_str());
-
-        std::string s(reinterpret_cast<const char*>(&deals[i].requestedAssets[0].name), 8);
-        std::cout << "As string: [" << s << "]" << std::endl;
-
-        const unsigned char* p = reinterpret_cast<const unsigned char*>(&deals[i].requestedAssets[0].name);
-        std::cout << "Bytes in memory: ";
-        for (int ii = 0; ii < 8; ii++) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0')
-                    << static_cast<int>(p[ii]) << " ";
-        }
-        std::cout << std::dec << std::endl;
     }
 }
