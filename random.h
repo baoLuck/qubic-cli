@@ -14,10 +14,10 @@ struct EscrowCreateDeal_input {
         int64_t amount;
     };
     uint64_t offeredQU;
-    uint8_t offeredAssetsAmount;
+    uint64_t offeredAssetsAmount;
     AssetWithAmount offeredAssets[4];
     uint64_t requestedQU;
-    uint8_t requestedAssetsAmount;
+    uint64_t requestedAssetsAmount;
     AssetWithAmount requestedAssets[4];
 };
 
@@ -26,9 +26,9 @@ struct EscrowGetDeals_input {
 };
 struct EscrowGetDeals_output {
     int64_t currentValue;
-    uint8_t ownedDealsAmount;
-    uint8_t proposedDealsAmount;
-    uint8_t openedDealsAmount;
+    uint64_t ownedDealsAmount;
+    uint64_t proposedDealsAmount;
+    uint64_t openedDealsAmount;
     struct AssetWithAmount
     {
         uint8_t issuer[32];
@@ -40,10 +40,10 @@ struct EscrowGetDeals_output {
         int64_t index;
         uint8_t acceptorId[32];
         uint64_t offeredQU;
-        uint8_t offeredAssetsAmount;
+        uint64_t offeredAssetsAmount;
         AssetWithAmount offeredAssets[4];
         uint64_t requestedQU;
-        uint8_t requestedAssetsAmount;
+        uint64_t requestedAssetsAmount;
         AssetWithAmount requestedAssets[4];
         int16_t creationEpoch;
         uint64_t ownerFee;
