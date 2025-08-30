@@ -25,8 +25,8 @@
 #define ESCROW_CANCEL_DEAL 5
 #define ESCROW_GET_FREE_ASSET 6
 
-constexpr uint64_t ESCROW_CREATE_DEAL_FEE = 200000ULL;
-constexpr uint64_t ESCROW_ACCEPT_DEAL_FEE = 200000ULL;
+constexpr uint64_t ESCROW_CREATE_DEAL_FEE = 250000ULL;
+constexpr uint64_t ESCROW_ACCEPT_DEAL_FEE = 250000ULL;
 constexpr uint64_t ESCROW_MAKE_DEAL_OPENED_FEE = 1ULL;
 constexpr uint64_t ESCROW_CANCEL_DEAL_FEE = 1ULL;
 constexpr uint64_t ESCROW_ADDITIONAL_CREATION_FEE = 200; // 2%
@@ -79,7 +79,7 @@ void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     memset(&packet, 0, sizeof(packet));
     memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
     memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
-    packet.transaction.amount = ESCROW_CREATE_DEAL_FEE + input.offeredQU + (input.offeredQU * ESCROW_ADDITIONAL_CREATION_FEE / 10000ULL);
+    packet.transaction.amount = ESCROW_CREATE_DEAL_FEE + input.offeredQU;
     uint32_t currentTick = getTickNumberFromNode(qc);
     packet.transaction.tick = currentTick + 5;
     packet.transaction.inputType = ESCROW_CREATE_DEAL;
@@ -199,7 +199,7 @@ void escrowAcceptDeal(const char* nodeIp, int nodePort, const char* seed, const 
         LOG("Failed to get requestedQU for deal with index: %d", index);
         return;
     }
-    uint64_t fee = ESCROW_ACCEPT_DEAL_FEE + requestedQU + (requestedQU * ESCROW_ADDITIONAL_CREATION_FEE / 10000ULL);
+    uint64_t fee = ESCROW_ACCEPT_DEAL_FEE + requestedQU;
     escrowOperateDeal(nodeIp, nodePort, seed, index, fee, ESCROW_ACCEPT_DEAL);
 }
 

@@ -46,8 +46,6 @@ struct EscrowGetDeals_output {
         uint64_t requestedAssetsAmount;
         AssetWithAmount requestedAssets[4];
         int16_t creationEpoch;
-        uint64_t ownerFee;
-        uint64_t acceptorFee;
     };
     Deal ownedDeals[8];
     Deal proposedDeals[8];
