@@ -451,6 +451,8 @@ void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, c
             char iden2[61];
             memset(iden2, 0, 61);
             getIdentityFromPublicKey(deals[i].requestedAssets[j].issuer, iden2, false);
+            std::string offeredAsset(reinterpret_cast<const char*>(&deals[i].offeredAssets[j].name), 8);
+            std::string requestedAsset(reinterpret_cast<const char*>(&deals[i].requestedAssets[j].name), 8);
             LOG("%-18s%-2s%-61s| %-13s| %-61s| %-13s| %-59s\n%-18s%2s%62s%15s %-60s |%15s %-60s\n%82s%15s %-60s |%15s %-60s\n",
                 (j == 0) ? std::to_string(deals[i].index).c_str() : "",
                 (j == 0) ? "| " : "  ",
@@ -463,9 +465,9 @@ void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, c
                 (j == 0) ? "| " : "  ",
                 "|",
                 "|",
-                isOffered ? std::string(reinterpret_cast<const char*>(&deals[i].offeredAssets[j].name), 8) : "",
+                isOffered ? offeredAsset : "",
                 "|",
-                isRequested ? std::string(reinterpret_cast<const char*>(&deals[i].requestedAssets[j].name), 8) : "",
+                isRequested ? requestedAsset : "",
                 "|",
                 "|",
                 isOffered ? std::to_string(deals[i].offeredAssets[j].amount) : "",
