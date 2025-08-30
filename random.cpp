@@ -470,9 +470,9 @@ void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, c
                 isRequested ? requestedAsset.c_str() : "",
                 "|",
                 "|",
-                isOffered ? std::to_string(deals[i].offeredAssets[j].amount) : "",
+                isOffered ? std::to_string(deals[i].offeredAssets[j].amount).c_str() : "",
                 "|",
-                isRequested ? std::to_string(deals[i].requestedAssets[j].amount) : "");
+                isRequested ? std::to_string(deals[i].requestedAssets[j].amount).c_str() : "");
 
             if (j + 1 < deals[i].offeredAssetsAmount || j + 1 < deals[i].requestedAssetsAmount)
             {
