@@ -107,10 +107,10 @@ char* g_msVaultPublicId = nullptr;
 char* g_msVaultOwnersCommaSeparated = nullptr;
 
 // escrow
-int64_t g_counterIncreaseValue = 0;
 char* g_escrowAcceptorId = nullptr;
 char* g_escrow_offeredAssetsCommaSeparated = nullptr;
 char* g_escrow_requestedAssetsCommaSeparated = nullptr;
 int64_t g_escrow_dealIndex = 0;
 char* g_escrow_asset_name = nullptr;
 char* g_escrow_issuer = nullptr;
+int64_t g_escrow_offset = 0;

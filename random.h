@@ -5,7 +5,6 @@
 #define RANDOM_CONTRACT_INDEX 3
 
 struct EscrowCreateDeal_input {
-    int64_t delta;
     uint8_t acceptorId[32];
     struct AssetWithAmount
     {
@@ -48,7 +47,7 @@ struct EscrowGetDeals_output {
         int16_t creationEpoch;
     };
     Deal ownedDeals[8];
-    Deal proposedDeals[8];
+    Deal proposedDeals[32];
     Deal openedDeals[32];
     static constexpr unsigned char type() {
         return RespondContractFunction::type();
@@ -65,14 +64,13 @@ struct EscrowGetFreeAsset_input {
     uint64_t name;
 };
 struct EscrowGetFreeAsset_output {
-    int64_t freeAmount;
+    uint64_t freeAmount;
     static constexpr unsigned char type() {
         return RespondContractFunction::type();
     }
 };
 
 void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
-    int64_t delta,
     const char* acceptorId,
     const char* offeredAssetsCommaSeparated,
     const char* requestedAssetsCommaSeparated);
@@ -85,5 +83,6 @@ void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, cons
 
 EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, const char* seed);
 int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index);
-int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, uint64_t& QUAmount);
+int64_t escrowGetSharesFeesForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index);
+int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, uint64_t& QUAmount, uint64_t& sharesFees);
 void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, const char* dealTypeName, const char* p1, const char* p2);

@@ -615,7 +615,6 @@ int run(int argc, char* argv[])
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
             escrowCreateDeal(g_nodeIp, g_nodePort, g_seed,
-                g_counterIncreaseValue,
                 g_escrowAcceptorId,
                 g_escrow_offeredAssetsCommaSeparated,
                 g_escrow_requestedAssetsCommaSeparated);

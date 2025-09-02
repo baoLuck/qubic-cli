@@ -19,32 +19,35 @@
 #define RANDOM_CONTRACT_INDEX 3
 
 #define ESCROW_CREATE_DEAL 1
-#define ESCROW_GET_DEALS 2
-#define ESCROW_ACCEPT_DEAL 3
-#define ESCROW_MAKE_DEAL_OPENED 4
-#define ESCROW_CANCEL_DEAL 5
-#define ESCROW_GET_FREE_ASSET 6
+#define ESCROW_ACCEPT_DEAL 2
+#define ESCROW_MAKE_DEAL_OPENED 3
+#define ESCROW_CANCEL_DEAL 4
+
+#define ESCROW_GET_DEALS 1
+#define ESCROW_GET_FREE_ASSET 2
 
 constexpr uint64_t ESCROW_CREATE_DEAL_FEE = 250000ULL;
 constexpr uint64_t ESCROW_ACCEPT_DEAL_FEE = 250000ULL;
 constexpr uint64_t ESCROW_MAKE_DEAL_OPENED_FEE = 1ULL;
 constexpr uint64_t ESCROW_CANCEL_DEAL_FEE = 1ULL;
+constexpr uint64_t ESCROW_FEE_PER_SHARE = 3000000ULL;
 constexpr uint64_t ESCROW_ADDITIONAL_CREATION_FEE = 200; // 2%
 constexpr auto ESCROW_SC_ADDRESS = "DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANMIG";
+constexpr auto SHARES_ISSUER = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFXIB";
 
 void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
-    int64_t delta,
     const char* acceptorId,
     const char* offeredAssetsCommaSeparated,
     const char* requestedAssetsCommaSeparated)
 {
     EscrowCreateDeal_input input;
-    input.delta = delta;
     memset(input.acceptorId, 0, 32);
     getPublicKeyFromIdentity(acceptorId, input.acceptorId);
 
-    input.offeredAssetsAmount = parseAssets(offeredAssetsCommaSeparated, input.offeredAssets, 4, input.offeredQU);
-    input.requestedAssetsAmount = parseAssets(requestedAssetsCommaSeparated, input.requestedAssets, 4, input.requestedQU);
+    uint64_t sharesFees = 0;
+
+    input.offeredAssetsAmount = parseAssets(offeredAssetsCommaSeparated, input.offeredAssets, 4, input.offeredQU, sharesFees);
+    input.requestedAssetsAmount = parseAssets(requestedAssetsCommaSeparated, input.requestedAssets, 4, input.requestedQU, sharesFees);
 
     auto qc = make_qc(nodeIp, nodePort);
     if (!qc) {
@@ -79,7 +82,7 @@ void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     memset(&packet, 0, sizeof(packet));
     memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
     memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
-    packet.transaction.amount = ESCROW_CREATE_DEAL_FEE + input.offeredQU;
+    packet.transaction.amount = ESCROW_CREATE_DEAL_FEE + input.offeredQU + sharesFees;
     uint32_t currentTick = getTickNumberFromNode(qc);
     packet.transaction.tick = currentTick + 5;
     packet.transaction.inputType = ESCROW_CREATE_DEAL;
@@ -143,6 +146,75 @@ int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char
     return -1;
 }
 
+int64_t escrowGetSharesFeesForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index)
+{
+    EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed);
+
+    for (int i = 0; i < output.proposedDealsAmount; i++)
+    {
+        if (output.proposedDeals[i].index == index)
+        {
+            uint64_t sharesFees = 0;
+            for (int j = 0; j < output.proposedDeals[i].offeredAssetsAmount; j++)
+            {
+                char iden[61];
+                memset(iden, 0, 61);
+                getIdentityFromPublicKey(output.proposedDeals[i].offeredAssets[j].issuer, iden, false);
+                if (strcmp(iden, SHARES_ISSUER) == 0)
+                {
+                    sharesFees += (output.proposedDeals[i].offeredAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
+                }
+            }
+
+            for (int j = 0; j < output.proposedDeals[i].requestedAssetsAmount; j++)
+            {
+                char iden[61];
+                memset(iden, 0, 61);
+                getIdentityFromPublicKey(output.proposedDeals[i].requestedAssets[j].issuer, iden, false);
+                if (strcmp(iden, SHARES_ISSUER) == 0)
+                {
+                    sharesFees += (output.proposedDeals[i].requestedAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
+                }
+            }
+
+            return sharesFees;
+        }
+    }
+
+    for (int i = 0; i < output.openedDealsAmount; i++)
+    {
+        if (output.openedDeals[i].index == index)
+        {
+            uint64_t sharesFees = 0;
+            for (int j = 0; j < output.openedDeals[i].offeredAssetsAmount; j++)
+            {
+                char iden[61];
+                memset(iden, 0, 61);
+                getIdentityFromPublicKey(output.openedDeals[i].offeredAssets[j].issuer, iden, false);
+                if (strcmp(iden, SHARES_ISSUER) == 0)
+                {
+                    sharesFees += (output.openedDeals[i].offeredAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
+                }
+            }
+
+            for (int j = 0; j < output.openedDeals[i].requestedAssetsAmount; j++)
+            {
+                char iden[61];
+                memset(iden, 0, 61);
+                getIdentityFromPublicKey(output.openedDeals[i].requestedAssets[j].issuer, iden, false);
+                if (strcmp(iden, SHARES_ISSUER) == 0)
+                {
+                    sharesFees += (output.openedDeals[i].requestedAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
+                }
+            }
+
+            return sharesFees;
+        }
+    }
+
+    return -1;
+}
+
 EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, const char* seed)
 {
     EscrowGetDeals_input input;
@@ -194,12 +266,14 @@ EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, con
 void escrowAcceptDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index)
 {
     int64_t requestedQU = escrowGetRequestedQUForDeal(nodeIp, nodePort, seed, index);
-    if (requestedQU < 0)
+    int64_t sharesFees = escrowGetSharesFeesForDeal(nodeIp, nodePort, seed, index);
+
+    if (requestedQU < 0 || sharesFees < 0)
     {
-        LOG("Failed to get requestedQU for deal with index: %d", index);
+        LOG("Failed to get requestedQU or sharesFees for deal with index: %d", index);
         return;
     }
-    uint64_t fee = ESCROW_ACCEPT_DEAL_FEE + requestedQU;
+    uint64_t fee = ESCROW_ACCEPT_DEAL_FEE + requestedQU + sharesFees;
     escrowOperateDeal(nodeIp, nodePort, seed, index, fee, ESCROW_ACCEPT_DEAL);
 }
 
@@ -352,7 +426,7 @@ void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, cons
     LOG("Free asset amount: %lld\n", output.freeAmount);
 }
 
-int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, uint64_t& QUAmount) 
+int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, uint64_t& QUAmount, uint64_t& sharesFees) 
 {
     std::string QUAmountStr;
     std::string assetsStr;
@@ -400,6 +474,14 @@ int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAm
             else if (i == 2)
             {
                 outputArray[count].amount = std::stoll(part);
+
+                char iden[61];
+                memset(iden, 0, 61);
+                getIdentityFromPublicKey(outputArray[count].issuer, iden, false);
+                if (strcmp(iden, SHARES_ISSUER) == 0)
+                {
+                    sharesFees += (outputArray[count].amount * ESCROW_FEE_PER_SHARE / 2);
+                }
             }
         }
 

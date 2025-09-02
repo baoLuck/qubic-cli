@@ -1546,13 +1546,12 @@ void parseArgument(int argc, char** argv)
 
         if (strcmp(argv[i], "-escrowcreatedeal") == 0)
         {
-            CHECK_NUMBER_OF_PARAMETERS(4)
+            CHECK_NUMBER_OF_PARAMETERS(3)
             g_cmd = ESCROW_CREATE_DEAL_CMD;
-            g_counterIncreaseValue = charToNumber(argv[i + 1]);
-            g_escrowAcceptorId = argv[i + 2];
-            g_escrow_offeredAssetsCommaSeparated = argv[i + 3];
-            g_escrow_requestedAssetsCommaSeparated = argv[i + 4];
-            i += 5;
+            g_escrowAcceptorId = argv[i + 1];
+            g_escrow_offeredAssetsCommaSeparated = argv[i + 2];
+            g_escrow_requestedAssetsCommaSeparated = argv[i + 3];
+            i += 4;
             CHECK_OVER_PARAMETERS
             return;
         }
