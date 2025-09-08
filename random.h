@@ -46,8 +46,8 @@ struct EscrowGetDeals_output {
         int16_t creationEpoch;
     };
     Deal ownedDeals[8];
-    Deal proposedDeals[128];
-    Deal publicDeals[512];
+    Deal proposedDeals[32];
+    Deal publicDeals[64];
     static constexpr unsigned char type() {
         return RespondContractFunction::type();
     }
