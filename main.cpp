@@ -634,11 +634,11 @@ int run(int argc, char* argv[])
             escrowAcceptDeal(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
             break;
         }
-        case ESCROW_MAKE_DEAL_OPENED_CMD:
+        case ESCROW_MAKE_DEAL_PUBLIC_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowMakeDealOpened(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
+            escrowMakeDealPublic(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
             break;
         }
         case ESCROW_CANCEL_DEAL_CMD:

@@ -292,7 +292,7 @@ void print_help()
     printf("\t\tGet deals. No parameters, seed required.\n");
     printf("\t-escrowacceptdeal <DEAL_INDEX>\n");
     printf("\t\tAccept deal with index. The deal index can be obtained through -escrowgetdeals.\n");
-    printf("\t-escrowmakedealopened <DEAL_INDEX>\n");
+    printf("\t-escrowmakedealpublic <DEAL_INDEX>\n");
     printf("\t\tRemove a specific acceptor for the deal and make it open to all users. The deal index can be obtained through -escrowgetdeals.\n");
     printf("\t-escrowcanceldeal <DEAL_INDEX>\n");
     printf("\t\tCancel the deal. The deal index can be obtained through -escrowgetdeals.\n");
@@ -1571,10 +1571,10 @@ void parseArgument(int argc, char** argv)
             CHECK_OVER_PARAMETERS
             return;
         }
-        if (strcmp(argv[i], "-escrowmakedealopened") == 0)
+        if (strcmp(argv[i], "-escrowmakedealpublic") == 0)
         {
             CHECK_NUMBER_OF_PARAMETERS(1)
-            g_cmd = ESCROW_MAKE_DEAL_OPENED_CMD;
+            g_cmd = ESCROW_MAKE_DEAL_PUBLIC_CMD;
             g_escrow_dealIndex = charToNumber(argv[i + 1]);
             i += 2;
             CHECK_OVER_PARAMETERS

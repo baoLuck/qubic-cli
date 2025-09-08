@@ -24,10 +24,9 @@ struct EscrowGetDeals_input {
     uint8_t owner[32];
 };
 struct EscrowGetDeals_output {
-    int64_t currentValue;
     uint64_t ownedDealsAmount;
     uint64_t proposedDealsAmount;
-    uint64_t openedDealsAmount;
+    uint64_t publicDealsAmount;
     struct AssetWithAmount
     {
         uint8_t issuer[32];
@@ -47,8 +46,8 @@ struct EscrowGetDeals_output {
         int16_t creationEpoch;
     };
     Deal ownedDeals[8];
-    Deal proposedDeals[32];
-    Deal openedDeals[32];
+    Deal proposedDeals[128];
+    Deal publicDeals[512];
     static constexpr unsigned char type() {
         return RespondContractFunction::type();
     }
@@ -76,7 +75,7 @@ void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     const char* requestedAssetsCommaSeparated);
 void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed);
 void escrowAcceptDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
-void escrowMakeDealOpened(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
+void escrowMakeDealPublic(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
 void escrowCancelDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
 void escrowOperateDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index, const int64_t fee, const unsigned short inputType);
 void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, const char* asset_name, const char* issuer);
@@ -85,4 +84,4 @@ EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, con
 int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index);
 int64_t escrowGetSharesFeesForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index);
 int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, uint64_t& QUAmount, uint64_t& sharesFees);
-void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, const char* dealTypeName, const char* p1, const char* p2);
+void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, const char* dealTypeName, const char* p1, const char* p2, const char* p3);

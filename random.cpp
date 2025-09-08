@@ -20,7 +20,7 @@
 
 #define ESCROW_CREATE_DEAL 1
 #define ESCROW_ACCEPT_DEAL 2
-#define ESCROW_MAKE_DEAL_OPENED 3
+#define ESCROW_MAKE_DEAL_PUBLIC 3
 #define ESCROW_CANCEL_DEAL 4
 
 #define ESCROW_GET_DEALS 1
@@ -28,7 +28,7 @@
 
 constexpr uint64_t ESCROW_CREATE_DEAL_FEE = 250000ULL;
 constexpr uint64_t ESCROW_ACCEPT_DEAL_FEE = 250000ULL;
-constexpr uint64_t ESCROW_MAKE_DEAL_OPENED_FEE = 1ULL;
+constexpr uint64_t ESCROW_MAKE_DEAL_PUBLIC_FEE = 1ULL;
 constexpr uint64_t ESCROW_CANCEL_DEAL_FEE = 1ULL;
 constexpr uint64_t ESCROW_FEE_PER_SHARE = 3000000ULL;
 constexpr uint64_t ESCROW_ADDITIONAL_CREATION_FEE = 200; // 2%
@@ -113,14 +113,13 @@ void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed)
 {
     EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed);
 
-    LOG("Current value of counter: %lld\n", output.currentValue);
     LOG("Current deals amount for owner: %lld\n", output.ownedDealsAmount);
     LOG("Proposed deals amount for owner: %lld\n", output.proposedDealsAmount);
-    LOG("Opened deals amount: %lld\n\n", output.openedDealsAmount);
+    LOG("Public deals amount: %lld\n\n", output.publicDealsAmount);
 
-    printDeals(output.ownedDealsAmount, output.ownedDeals, "OWNED DEALS\n", " (i give)", " (i get) ");
-    printDeals(output.proposedDealsAmount, output.proposedDeals, "\nPROPOSED DEALS\n", " (i get) ", " (i give)");
-    printDeals(output.openedDealsAmount, output.openedDeals, "\nOPENED DEALS\n", " (i get) ", " (i give)");
+    printDeals(output.ownedDealsAmount, output.ownedDeals, "OWNED DEALS\n", " (i give)", " (i get) ", " Acceptor ID");
+    printDeals(output.proposedDealsAmount, output.proposedDeals, "\nPROPOSED DEALS\n", " (i get) ", " (i give)", " Creator ID");
+    printDeals(output.publicDealsAmount, output.publicDeals, "\nPUBLIC DEALS\n", " (i get) ", " (i give)", " Creator ID");
 }
 
 int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index)
@@ -135,11 +134,11 @@ int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char
         }
     }
 
-    for (int i = 0; i < output.openedDealsAmount; i++)
+    for (int i = 0; i < output.publicDealsAmount; i++)
     {
-        if (output.openedDeals[i].index == index)
+        if (output.publicDeals[i].index == index)
         {
-            return output.openedDeals[i].requestedQU;
+            return output.publicDeals[i].requestedQU;
         }
     }
 
@@ -181,30 +180,30 @@ int64_t escrowGetSharesFeesForDeal(const char* nodeIp, int nodePort, const char*
         }
     }
 
-    for (int i = 0; i < output.openedDealsAmount; i++)
+    for (int i = 0; i < output.publicDealsAmount; i++)
     {
-        if (output.openedDeals[i].index == index)
+        if (output.publicDeals[i].index == index)
         {
             uint64_t sharesFees = 0;
-            for (int j = 0; j < output.openedDeals[i].offeredAssetsAmount; j++)
+            for (int j = 0; j < output.publicDeals[i].offeredAssetsAmount; j++)
             {
                 char iden[61];
                 memset(iden, 0, 61);
-                getIdentityFromPublicKey(output.openedDeals[i].offeredAssets[j].issuer, iden, false);
+                getIdentityFromPublicKey(output.publicDeals[i].offeredAssets[j].issuer, iden, false);
                 if (strcmp(iden, SHARES_ISSUER) == 0)
                 {
-                    sharesFees += (output.openedDeals[i].offeredAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
+                    sharesFees += (output.publicDeals[i].offeredAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
                 }
             }
 
-            for (int j = 0; j < output.openedDeals[i].requestedAssetsAmount; j++)
+            for (int j = 0; j < output.publicDeals[i].requestedAssetsAmount; j++)
             {
                 char iden[61];
                 memset(iden, 0, 61);
-                getIdentityFromPublicKey(output.openedDeals[i].requestedAssets[j].issuer, iden, false);
+                getIdentityFromPublicKey(output.publicDeals[i].requestedAssets[j].issuer, iden, false);
                 if (strcmp(iden, SHARES_ISSUER) == 0)
                 {
-                    sharesFees += (output.openedDeals[i].requestedAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
+                    sharesFees += (output.publicDeals[i].requestedAssets[j].amount * ESCROW_FEE_PER_SHARE / 2);
                 }
             }
 
@@ -277,9 +276,9 @@ void escrowAcceptDeal(const char* nodeIp, int nodePort, const char* seed, const 
     escrowOperateDeal(nodeIp, nodePort, seed, index, fee, ESCROW_ACCEPT_DEAL);
 }
 
-void escrowMakeDealOpened(const char* nodeIp, int nodePort, const char* seed, const int64_t index)
+void escrowMakeDealPublic(const char* nodeIp, int nodePort, const char* seed, const int64_t index)
 {
-    escrowOperateDeal(nodeIp, nodePort, seed, index, ESCROW_MAKE_DEAL_OPENED_FEE, ESCROW_MAKE_DEAL_OPENED);
+    escrowOperateDeal(nodeIp, nodePort, seed, index, ESCROW_MAKE_DEAL_PUBLIC_FEE, ESCROW_MAKE_DEAL_PUBLIC);
 }
 
 void escrowCancelDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index)
@@ -491,7 +490,7 @@ int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAm
     return count;
 }
 
-void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, const char* dealTypeName, const char* p1, const char* p2)
+void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, const char* dealTypeName, const char* p1, const char* p2, const char* p3)
 {
     if (dealsAmount <= 0)
     {
@@ -501,7 +500,7 @@ void printDeals(int64_t dealsAmount, const EscrowGetDeals_output::Deal* deals, c
     LOG("%s\n", std::string().assign(237, '-').c_str());
     LOG("%-81s|%-24s%15s%-38s|%-24s%15s%s\n", "", "", "Offered assets", p1, "", "Requested assets", p2);
     LOG("%s\n", std::string().assign(237, '-').c_str());
-    LOG("%-18s|%-62s|%-14s|%-62s|%-14s|%-60s\n", "# (Index / Epoch)", " Acceptor ID", " QU Amount", " Asset (Issuer / Name / Amount)", " QU Amount", " Asset (Issuer / Name / Amount)");
+    LOG("%-18s|%-62s|%-14s|%-62s|%-14s|%-60s\n", "# (Index / Epoch)", p3, " QU Amount", " Asset (Issuer / Name / Amount)", " QU Amount", " Asset (Issuer / Name / Amount)");
     LOG("%s\n", std::string().assign(237, '-').c_str());
     for (int i = 0; i < dealsAmount; i++)
     {
