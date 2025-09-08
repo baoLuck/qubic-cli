@@ -22,6 +22,7 @@
 #define ESCROW_ACCEPT_DEAL 2
 #define ESCROW_MAKE_DEAL_PUBLIC 3
 #define ESCROW_CANCEL_DEAL 4
+#define ESCROW_TRANSFER_RIGHTS 5
 
 #define ESCROW_GET_DEALS 1
 #define ESCROW_GET_FREE_ASSET 2
@@ -113,6 +114,7 @@ void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed)
 {
     EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed);
 
+    LOG("\nCounter %lld\n", output.counter);
     LOG("Current deals amount for owner: %lld\n", output.ownedDealsAmount);
     LOG("Proposed deals amount for owner: %lld\n", output.proposedDealsAmount);
     LOG("Public deals amount: %lld\n\n", output.publicDealsAmount);
@@ -328,6 +330,77 @@ void escrowOperateDeal(const char* nodeIp, int nodePort, const char* seed, const
     uint32_t currentTick = getTickNumberFromNode(qc);
     packet.transaction.tick = currentTick + 5;
     packet.transaction.inputType = inputType;
+    packet.transaction.inputSize = sizeof(input);
+    memcpy(&packet.inputData, &input, sizeof(input));
+    KangarooTwelve((uint8_t*)&packet.transaction,
+                   sizeof(packet.transaction) + sizeof(input),
+                   digest, 
+                   32);
+    sign(subseed, sourcePublicKey, digest, signature);
+    memcpy(packet.sig, signature, 64);
+    packet.header.setSize(sizeof(packet));
+    packet.header.zeroDejavu();
+    packet.header.setType(BROADCAST_TRANSACTION);
+    qc->sendData((uint8_t*)&packet, packet.header.size());
+    KangarooTwelve((uint8_t*)&packet.transaction, 
+                   sizeof(packet.transaction) + sizeof(input) + SIGNATURE_SIZE, 
+                   digest,
+                   32);
+    getTxHashFromDigest(digest, txHash);
+    printReceipt(packet.transaction, txHash, nullptr);
+    LOG("\n%u\n", currentTick);
+    LOG("run ./qubic-cli [...] -checktxontick %u %s\n", currentTick + 5, txHash);
+    LOG("to check your tx confirmation status\n");
+}
+
+void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, const char* assetName, const char* issuer, const int64_t amount)
+{
+    TransferShareManagementRights_input input;
+    memset(&input.asset.assetName, 0, 8);
+    memcpy(&input.asset.assetName, assetName, 4);
+    input.amount = amount;
+    memset(input.asset.issuer, 0, 32);
+    getPublicKeyFromIdentity(issuer, input.asset.issuer);
+
+    LOG("\n\n%llu\n\n", input.asset.assetName);
+
+    auto qc = make_qc(nodeIp, nodePort);
+    if (!qc) {
+        LOG("Failed to connect to node.\n");
+        return;
+    }
+
+    uint8_t subseed[32] = { 0 };
+    uint8_t privateKey[32] = { 0 };
+    uint8_t sourcePublicKey[32] = { 0 };
+    uint8_t destPublicKey[32] = { 0 };
+    uint8_t digest[32];
+    uint8_t signature[64];
+    char publicIdentity[128] = { 0 };
+    char txHash[128] = { 0 };
+    const bool isLowerCase = false;
+
+    getSubseedFromSeed((uint8_t*) seed, subseed);
+    getPrivateKeyFromSubSeed(subseed, privateKey);
+    getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
+    getIdentityFromPublicKey(sourcePublicKey, publicIdentity, isLowerCase);
+    memset(destPublicKey, 0, 32);
+    ((uint64_t*) destPublicKey)[0] = RANDOM_CONTRACT_INDEX;
+
+    struct {
+        RequestResponseHeader header;
+        Transaction transaction;
+        TransferShareManagementRights_input inputData;
+        uint8_t sig[64];
+    } packet;
+
+    memset(&packet, 0, sizeof(packet));
+    memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
+    memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
+    packet.transaction.amount = 100;
+    uint32_t currentTick = getTickNumberFromNode(qc);
+    packet.transaction.tick = currentTick + 5;
+    packet.transaction.inputType = ESCROW_TRANSFER_RIGHTS;
     packet.transaction.inputSize = sizeof(input);
     memcpy(&packet.inputData, &input, sizeof(input));
     KangarooTwelve((uint8_t*)&packet.transaction,

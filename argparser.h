@@ -288,14 +288,16 @@ void print_help()
     printf("\t\t<ACCEPTOR_ID> is identity to which the deal is offered.\n");
     printf("\t\t<OFFERED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
     printf("\t\t<REQUESTED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
-    printf("\t-escrowgetdeals\n");
-    printf("\t\tGet deals. No parameters, seed required.\n");
     printf("\t-escrowacceptdeal <DEAL_INDEX>\n");
     printf("\t\tAccept deal with index. The deal index can be obtained through -escrowgetdeals.\n");
     printf("\t-escrowmakedealpublic <DEAL_INDEX>\n");
     printf("\t\tRemove a specific acceptor for the deal and make it open to all users. The deal index can be obtained through -escrowgetdeals.\n");
     printf("\t-escrowcanceldeal <DEAL_INDEX>\n");
     printf("\t\tCancel the deal. The deal index can be obtained through -escrowgetdeals.\n");
+    printf("\t-escrowtransferrights <ASSET_NAME> <ISSUER> <AMOUNT>\n");
+    printf("\t\tReturn managing rights of asset to QX sc\n");
+    printf("\t-escrowgetdeals\n");
+    printf("\t\tGet deals. No parameters, seed required.\n");
     printf("\t-escrowgetfreeasset <ASSET_NAME> <ISSUER>\n");
     printf("\t\tGet free asset amount.\n");
 }
@@ -1589,11 +1591,22 @@ void parseArgument(int argc, char** argv)
             CHECK_OVER_PARAMETERS
             return;
         }
+        if (strcmp(argv[i], "-escrowtransferrights") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = ESCROW_TRANSFER_RIGHTS_CMD;
+            g_escrow_assetName = argv[i + 1];
+            g_escrow_issuer = argv[i + 2];
+            g_escrow_amount = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
         if (strcmp(argv[i], "-escrowgetfreeasset") == 0)
         {
             CHECK_NUMBER_OF_PARAMETERS(2)
             g_cmd = ESCROW_GET_FREE_ASSET_CMD;
-            g_escrow_asset_name = argv[i + 1];
+            g_escrow_assetName = argv[i + 1];
             g_escrow_issuer = argv[i + 2];
             i += 3;
             CHECK_OVER_PARAMETERS
