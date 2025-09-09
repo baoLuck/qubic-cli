@@ -299,7 +299,7 @@ void print_help()
     printf("\t-escrowgetdeals\n");
     printf("\t\tGet deals. No parameters, seed required.\n");
     printf("\t-escrowgetfreeasset <ASSET_NAME> <ISSUER>\n");
-    printf("\t\tGet free asset amount.\n");
+    printf("\t\tGet unblocked assets amount.\n");
 }
 
 static long long charToNumber(char* a)

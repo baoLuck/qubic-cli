@@ -357,12 +357,10 @@ void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, co
 {
     TransferShareManagementRights_input input;
     memset(&input.asset.assetName, 0, 8);
-    memcpy(&input.asset.assetName, assetName, 4);
+    memcpy(&input.asset.assetName, assetName, std::min(strlen(assetName), (size_t) 7));
     input.amount = amount;
     memset(input.asset.issuer, 0, 32);
     getPublicKeyFromIdentity(issuer, input.asset.issuer);
-
-    LOG("\n\n%llu\n\n", input.asset.assetName);
 
     auto qc = make_qc(nodeIp, nodePort);
     if (!qc) {
@@ -424,23 +422,24 @@ void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, co
     LOG("to check your tx confirmation status\n");
 }
 
-void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, const char* asset_name, const char* issuer)
+void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, const char* assetName, const char* issuer)
 {
     EscrowGetFreeAsset_input input;
     uint8_t subseed[32] = { 0 };
     uint8_t privateKey[32] = { 0 };
     uint8_t sourcePublicKey[32] = { 0 };
+    uint8_t pk[32] = { 0 };
     getSubseedFromSeed((uint8_t*) seed, subseed);
     getPrivateKeyFromSubSeed(subseed, privateKey);
-    //getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
+    getPublicKeyFromPrivateKey(privateKey, pk);
     getPublicKeyFromIdentity(issuer, sourcePublicKey);
 
     memset(input.owner, 0, 32);
-    memcpy(input.owner, sourcePublicKey, 32);
-    memset(input.issuer, 0, 32);
-    memcpy(input.issuer, sourcePublicKey, 32);
-    memset(&input.name, 0, 8);
-    memcpy(&input.name, asset_name, 8);
+    memcpy(input.owner, pk, 32);
+    memset(input.asset.issuer, 0, 32);
+    memcpy(input.asset.issuer, sourcePublicKey, 32);
+    memset(&input.asset.assetName, 0, 8);
+    memcpy(&input.asset.assetName, assetName, std::min(strlen(assetName), (size_t) 7));
 
     auto qc = make_qc(nodeIp, nodePort);
     if (!qc) {
@@ -462,26 +461,6 @@ void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, cons
     req.header.setSize(sizeof(req.header) + sizeof(req.rcf) + sizeof(input));
     req.header.randomizeDejavu();
     req.header.setType(RequestContractFunction::type());
-
-    for (int i = 0; i < 32; i++) {
-        printf("%02X ", req.in.owner[i]);
-    }
-
-    printf("\n");
-
-    for (int i = 0; i < 32; i++) {
-        printf("%02X ", req.in.issuer[i]);
-    }
-
-    char iden1[61];
-    char iden2[61];
-    memset(iden1, 0, 61);
-    memset(iden2, 0, 61);
-    // getIdentityFromPublicKey(req.in.owner, iden1, false);
-    // getIdentityFromPublicKey(req.in.issuer, iden2, false);
-    memcpy(req.in.owner, iden1, sizeof(req.in.owner));
-    memcpy(req.in.issuer, iden2, sizeof(req.in.owner));
-    LOG("%s %s %s\n", req.in.owner, req.in.issuer, std::string(reinterpret_cast<const char*>(&req.in.name)));
 
     qc->sendData((uint8_t*)&req, req.header.size());
 

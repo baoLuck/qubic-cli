@@ -60,8 +60,11 @@ struct EscrowOperateDeal_input {
 
 struct EscrowGetFreeAsset_input {
     uint8_t owner[32];
-    uint8_t issuer[32];
-    uint64_t name;
+    struct
+    {
+        uint8_t issuer[32];
+        uint64_t assetName;
+    } asset;
 };
 struct EscrowGetFreeAsset_output {
     uint64_t freeAmount;
@@ -97,7 +100,7 @@ void escrowMakeDealPublic(const char* nodeIp, int nodePort, const char* seed, co
 void escrowCancelDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
 void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, const char* assetName, const char* issuer, const int64_t amount);
 void escrowOperateDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index, const int64_t fee, const unsigned short inputType);
-void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, const char* asset_name, const char* issuer);
+void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, const char* assetName, const char* issuer);
 
 EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, const char* seed);
 int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index);
