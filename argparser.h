@@ -271,6 +271,24 @@ void print_help()
     printf("\t-msvaultgetvaultowners <VAULT_ID>\n");
     printf("\t\tGet MsVault owners given vault ID.\n");
 
+    printf("\n[QBOND COMMANDS]\n");
+    printf("\t-qbondstake <MILLIONS_AMOUNT>\n");
+    printf("\t\tStake QU and get MBNDxxx token for every million of QU.\n");
+    printf("\t-qbondtransfer <IDENTITY> <EPOCH> <AMOUNT>\n");
+    printf("\t\tTransfer <AMOUNT> of MBonds of specific <EPOCH> to new owner <IDENTITY>\n");
+    printf("\t-qbondaddask <EPOCH> <PRICE> <AMOUNT>\n");
+    printf("\t\tAdd ask order of <AMOUNT> MBonds of <EPOCH> at <PRICE>\n");
+    printf("\t-qbondremoveask <EPOCH> <PRICE> <AMOUNT>\n");
+    printf("\t\tRemove <AMOUNT> MBonds of <EPOCH> from ask order at <PRICE>\n");
+    printf("\t-qbondaddbid <EPOCH> <PRICE> <AMOUNT>\n");
+    printf("\t\tAdd bid order of <AMOUNT> MBonds of <EPOCH> at <PRICE>\n");
+    printf("\t-qbondremovebid <EPOCH> <PRICE> <AMOUNT>\n");
+    printf("\t\tRemove <AMOUNT> MBonds of <EPOCH> from bid order at <PRICE>\n");
+    printf("\t-qbondgetinfoperepoch <EPOCH>\n");
+    printf("\t\tGet overall information about <EPOCH> (stakers amount, total staked, APY)\n");
+    printf("\t-qbondgetorders <EPOCH> <ASKS_OFFSET> <BIDS_OFFSET>\n");
+    printf("\t\tGet orders of <EPOCH> MBonds.\n");
+
     printf("\n[TESTING COMMANDS]\n");
     printf("\t-testqpifunctionsoutput\n");
     printf("\t\tTest that output of qpi functions matches TickData and quorum tick votes for 15 ticks in the future (as specified by scheduletick offset). Requires the TESTEXA SC to be enabled.\n");
@@ -280,24 +298,6 @@ void print_help()
     printf("\t\tGet incoming transfer amounts from either TESTEXB (\"B\") or TESTEXC (\"C\"). Requires the TESTEXB and TESTEXC SCs to be enabled.\n");
     printf("\t-testbidinipothroughcontract <B_OR_C> <CONTRACT_INDEX> <NUMBER_OF_SHARE> <PRICE_PER_SHARE>\n");
     printf("\t\tBid in an IPO either as TESTEXB (\"B\") or as TESTEXC (\"C\"). Requires the TESTEXB and TESTEXC SCs to be enabled.\n");
-
-    printf("\n[ESCROW COMMANDS]\n");
-    printf("\t-escrowcreatedeal <COUNTER> <ACCEPTOR_ID> <OFFERED_ASSETS> <REQUESTED_ASSETS>\n");
-    printf("\t\tCreate deal.\n");
-    printf("\t\t<COUNTER> is unused and will be deleted.\n");
-    printf("\t\t<ACCEPTOR_ID> is identity to which the deal is offered.\n");
-    printf("\t\t<OFFERED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
-    printf("\t\t<REQUESTED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
-    printf("\t-escrowgetdeals\n");
-    printf("\t\tGet deals. No parameters, seed required.\n");
-    printf("\t-escrowacceptdeal <DEAL_INDEX>\n");
-    printf("\t\tAccept deal with index. The deal index can be obtained through -escrowgetdeals.\n");
-    printf("\t-escrowmakedealopened <DEAL_INDEX>\n");
-    printf("\t\tRemove a specific acceptor for the deal and make it open to all users. The deal index can be obtained through -escrowgetdeals.\n");
-    printf("\t-escrowcanceldeal <DEAL_INDEX>\n");
-    printf("\t\tCancel the deal. The deal index can be obtained through -escrowgetdeals.\n");
-    printf("\t-escrowgetfreeasset <ASSET_NAME> <ISSUER>\n");
-    printf("\t\tGet free asset amount.\n");
 }
 
 static long long charToNumber(char* a)
@@ -1540,62 +1540,91 @@ void parseArgument(int argc, char** argv)
             return;
         }
 
-        /*************************
-         **** ESCROW COMMANDS ****
-         *************************/
+        /************************
+         **** QBOND COMMANDS ****
+         ************************/
 
-        if (strcmp(argv[i], "-escrowcreatedeal") == 0)
+        if (strcmp(argv[i], "-qbondstake") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBOND_STAKE_CMD;
+            g_qbond_millionsOfQu = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondtransfer") == 0)
         {
             CHECK_NUMBER_OF_PARAMETERS(3)
-            g_cmd = ESCROW_CREATE_DEAL_CMD;
-            g_escrowAcceptorId = argv[i + 1];
-            g_escrow_offeredAssetsCommaSeparated = argv[i + 2];
-            g_escrow_requestedAssetsCommaSeparated = argv[i + 3];
+            g_cmd = QBOND_TRANSFER_CMD;
+            g_qbond_targetIdentity = argv[i + 1];
+            g_qbond_epoch = charToNumber(argv[i + 2]);
+            g_qbond_mbondsAmount = charToNumber(argv[i + 3]);
             i += 4;
             CHECK_OVER_PARAMETERS
             return;
         }
-        if (strcmp(argv[i], "-escrowgetdeals") == 0)
+        if (strcmp(argv[i], "-qbondaddask") == 0)
         {
-            g_cmd = ESCROW_GET_DEALS_CMD;
-            i++;
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBOND_ADD_ASK_ORDER_CMD;
+            g_qbond_epoch = charToNumber(argv[i + 1]);
+            g_qbond_mbondPrice = charToNumber(argv[i + 2]);
+            g_qbond_mbondsAmount = charToNumber(argv[i + 3]);
+            i += 4;
             CHECK_OVER_PARAMETERS
             return;
         }
-        if (strcmp(argv[i], "-escrowacceptdeal") == 0)
+        if (strcmp(argv[i], "-qbondremoveask") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBOND_REMOVE_ASK_ORDER_CMD;
+            g_qbond_epoch = charToNumber(argv[i + 1]);
+            g_qbond_mbondPrice = charToNumber(argv[i + 2]);
+            g_qbond_mbondsAmount = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondaddbid") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBOND_ADD_BID_ORDER_CMD;
+            g_qbond_epoch = charToNumber(argv[i + 1]);
+            g_qbond_mbondPrice = charToNumber(argv[i + 2]);
+            g_qbond_mbondsAmount = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondremovebid") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBOND_REMOVE_BID_ORDER_CMD;
+            g_qbond_epoch = charToNumber(argv[i + 1]);
+            g_qbond_mbondPrice = charToNumber(argv[i + 2]);
+            g_qbond_mbondsAmount = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondgetinfoperepoch") == 0)
         {
             CHECK_NUMBER_OF_PARAMETERS(1)
-            g_cmd = ESCROW_ACCEPT_DEAL_CMD;
-            g_escrow_dealIndex = charToNumber(argv[i + 1]);
+            g_cmd = QBOND_GET_EPOCH_INFO_CMD;
+            g_qbond_epoch = charToNumber(argv[i + 1]);
             i += 2;
             CHECK_OVER_PARAMETERS
             return;
         }
-        if (strcmp(argv[i], "-escrowmakedealopened") == 0)
+        if (strcmp(argv[i], "-qbondgetorders") == 0)
         {
-            CHECK_NUMBER_OF_PARAMETERS(1)
-            g_cmd = ESCROW_MAKE_DEAL_OPENED_CMD;
-            g_escrow_dealIndex = charToNumber(argv[i + 1]);
-            i += 2;
-            CHECK_OVER_PARAMETERS
-            return;
-        }
-        if (strcmp(argv[i], "-escrowcanceldeal") == 0)
-        {
-            CHECK_NUMBER_OF_PARAMETERS(1)
-            g_cmd = ESCROW_CANCEL_DEAL_CMD;
-            g_escrow_dealIndex = charToNumber(argv[i + 1]);
-            i += 2;
-            CHECK_OVER_PARAMETERS
-            return;
-        }
-        if (strcmp(argv[i], "-escrowgetfreeasset") == 0)
-        {
-            CHECK_NUMBER_OF_PARAMETERS(2)
-            g_cmd = ESCROW_GET_FREE_ASSET_CMD;
-            g_escrow_asset_name = argv[i + 1];
-            g_escrow_issuer = argv[i + 2];
-            i += 3;
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBOND_GET_ORDERS_CMD;
+            g_qbond_epoch = charToNumber(argv[i + 1]);
+            g_qbond_asksOffset = charToNumber(argv[i + 2]);
+            g_qbond_bidsOffset = charToNumber(argv[i + 3]);
+            i += 4;
             CHECK_OVER_PARAMETERS
             return;
         }

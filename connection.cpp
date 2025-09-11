@@ -340,9 +340,9 @@ template MsVaultGetRevenueInfo_output QubicConnection::receivePacketWithHeaderAs
 template MsVaultGetFees_output QubicConnection::receivePacketWithHeaderAs<MsVaultGetFees_output>();
 template MsVaultGetVaultOwners_output QubicConnection::receivePacketWithHeaderAs<MsVaultGetVaultOwners_output>();
 
-// ESCROW
-template EscrowGetDeals_output QubicConnection::receivePacketWithHeaderAs<EscrowGetDeals_output>();
-template EscrowGetFreeAsset_output QubicConnection::receivePacketWithHeaderAs<EscrowGetFreeAsset_output>();
+// QBOND
+template GetInfoPerEpoch_output QubicConnection::receivePacketWithHeaderAs<GetInfoPerEpoch_output>();
+template GetOrders_output QubicConnection::receivePacketWithHeaderAs<GetOrders_output>();
 
 // TESTING
 template QpiFunctionsOutput QubicConnection::receivePacketWithHeaderAs<QpiFunctionsOutput>();

@@ -610,49 +610,60 @@ int run(int argc, char* argv[])
             msvaultGetVaultOwners(g_nodeIp, g_nodePort, g_msVaultID);
             break;
         }
-        case ESCROW_CREATE_DEAL_CMD:
+        case QBOND_STAKE_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowCreateDeal(g_nodeIp, g_nodePort, g_seed,
-                g_escrowAcceptorId,
-                g_escrow_offeredAssetsCommaSeparated,
-                g_escrow_requestedAssetsCommaSeparated);
+            qbondStake(g_nodeIp, g_nodePort, g_seed, g_qbond_millionsOfQu);
             break;
         }
-        case ESCROW_GET_DEALS_CMD:
+        case QBOND_TRANSFER_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowGetDeals(g_nodeIp, g_nodePort, g_seed);
+            qbondTransfer(g_nodeIp, g_nodePort, g_seed, g_qbond_targetIdentity, g_qbond_epoch, g_qbond_mbondsAmount);
             break;
         }
-        case ESCROW_ACCEPT_DEAL_CMD:
+        case QBOND_ADD_ASK_ORDER_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowAcceptDeal(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
+            qbondAddAskOrder(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_mbondPrice, g_qbond_mbondsAmount);
             break;
         }
-        case ESCROW_MAKE_DEAL_OPENED_CMD:
+        case QBOND_REMOVE_ASK_ORDER_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowMakeDealOpened(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
+            qbondRemoveAskOrder(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_mbondPrice, g_qbond_mbondsAmount);
             break;
         }
-        case ESCROW_CANCEL_DEAL_CMD:
+        case QBOND_ADD_BID_ORDER_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowCancelDeal(g_nodeIp, g_nodePort, g_seed, g_escrow_dealIndex);
+            qbondAddBidOrder(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_mbondPrice, g_qbond_mbondsAmount);
             break;
         }
-        case ESCROW_GET_FREE_ASSET_CMD:
+        case QBOND_REMOVE_BID_ORDER_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowGetFreeAsset(g_nodeIp, g_nodePort, g_seed, g_escrow_asset_name, g_escrow_issuer);
+            qbondRemoveBidOrder(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_mbondPrice, g_qbond_mbondsAmount);
+            break;
+        }
+        case QBOND_GET_EPOCH_INFO_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            qbondGetInfoPerEpoch(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch);
+            break;
+        }
+        case QBOND_GET_ORDERS_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            qbondGetOrders(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_asksOffset, g_qbond_bidsOffset);
             break;
         }
         case TEST_QPI_FUNCTIONS_OUTPUT:

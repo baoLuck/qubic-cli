@@ -106,11 +106,11 @@ char* g_msVaultDestination = nullptr;
 char* g_msVaultPublicId = nullptr;
 char* g_msVaultOwnersCommaSeparated = nullptr;
 
-// escrow
-char* g_escrowAcceptorId = nullptr;
-char* g_escrow_offeredAssetsCommaSeparated = nullptr;
-char* g_escrow_requestedAssetsCommaSeparated = nullptr;
-int64_t g_escrow_dealIndex = 0;
-char* g_escrow_asset_name = nullptr;
-char* g_escrow_issuer = nullptr;
-int64_t g_escrow_offset = 0;
+// qbond
+int64_t g_qbond_millionsOfQu = 0;
+int64_t g_qbond_epoch = 0;
+int64_t g_qbond_asksOffset = 0;
+int64_t g_qbond_bidsOffset = 0;
+char* g_qbond_targetIdentity = nullptr;
+int64_t g_qbond_mbondsAmount = 0;
+int64_t g_qbond_mbondPrice = 0;
