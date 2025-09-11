@@ -24,7 +24,6 @@ struct EscrowGetDeals_input {
     uint8_t owner[32];
 };
 struct EscrowGetDeals_output {
-    int64_t counter;
     uint64_t ownedDealsAmount;
     uint64_t proposedDealsAmount;
     uint64_t publicDealsAmount;

@@ -114,7 +114,6 @@ void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed)
 {
     EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed);
 
-    LOG("\nCounter %lld\n", output.counter);
     LOG("Current deals amount for owner: %lld\n", output.ownedDealsAmount);
     LOG("Proposed deals amount for owner: %lld\n", output.proposedDealsAmount);
     LOG("Public deals amount: %lld\n\n", output.publicDealsAmount);
