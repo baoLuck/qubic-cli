@@ -27,6 +27,7 @@
 #include "test_utils.h"
 #include "nostromo.h"
 #include "qutil.h"
+#include "escrow.h"
 
 #define DEFAULT_TIMEOUT_MSEC 1000
 
@@ -366,6 +367,11 @@ template NOSTROMOGetFundarasingByIndex_output QubicConnection::receivePacketWith
 template NOSTROMOGetProjectIndexListByCreator_output QubicConnection::receivePacketWithHeaderAs<NOSTROMOGetProjectIndexListByCreator_output>();
 template NOSTROMOGetInfoUserInvested_output QubicConnection::receivePacketWithHeaderAs<NOSTROMOGetInfoUserInvested_output>();
 template NOSTROMOGetMaxClaimAmount_output QubicConnection::receivePacketWithHeaderAs<NOSTROMOGetMaxClaimAmount_output>();
+
+// ESCROW
+template EscrowGetDeals_output QubicConnection::receivePacketWithHeaderAs<EscrowGetDeals_output>();
+template TransferShareManagementRights_output QubicConnection::receivePacketWithHeaderAs<TransferShareManagementRights_output>();
+template EscrowGetFreeAsset_output QubicConnection::receivePacketWithHeaderAs<EscrowGetFreeAsset_output>();
 
 // TESTING
 template QpiFunctionsOutput QubicConnection::receivePacketWithHeaderAs<QpiFunctionsOutput>();
