@@ -228,8 +228,6 @@ EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, con
     input.proposedOffset = proposedOffset;
     input.publicOffset = publicOffset;
 
-    LOG("\n\n%lld %lld\n\n", input.proposedOffset, input.publicOffset);
-
     auto qc = make_qc(nodeIp, nodePort);
     if (!qc) {
         LOG("Failed to connect to node.\n");
