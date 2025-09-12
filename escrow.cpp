@@ -1,4 +1,4 @@
-#include "random.h"
+#include "escrow.h"
 #include "structs.h"
 #include "logger.h"
 #include "connection.h"
@@ -10,13 +10,12 @@
 #include <sstream>
 #include <iostream>
 
-#include <iostream>
 #include <iomanip>
 #include <string>
 #include <cstring>
 #include <cstdint>
 
-#define RANDOM_CONTRACT_INDEX 3
+#define ESCROW_CONTRACT_INDEX 3
 
 #define ESCROW_CREATE_DEAL 1
 #define ESCROW_ACCEPT_DEAL 2
@@ -71,7 +70,7 @@ void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
     getIdentityFromPublicKey(sourcePublicKey, publicIdentity, isLowerCase);
     memset(destPublicKey, 0, 32);
-    ((uint64_t*) destPublicKey)[0] = RANDOM_CONTRACT_INDEX;
+    ((uint64_t*) destPublicKey)[0] = ESCROW_CONTRACT_INDEX;
 
     struct {
         RequestResponseHeader header;
@@ -110,9 +109,9 @@ void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     LOG("to check your tx confirmation status\n");
 }
 
-void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed)
+void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed, const int64_t proposedOffset, const int64_t publicOffset)
 {
-    EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed);
+    EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed, proposedOffset, publicOffset);
 
     LOG("Current deals amount for owner: %lld\n", output.ownedDealsAmount);
     LOG("Proposed deals amount for owner: %lld\n", output.proposedDealsAmount);
@@ -125,7 +124,7 @@ void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed)
 
 int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index)
 {
-    EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed);
+    EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed, 0, 0);
 
     for (int i = 0; i < output.proposedDealsAmount; i++)
     {
@@ -148,7 +147,7 @@ int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char
 
 int64_t escrowGetSharesFeesForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index)
 {
-    EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed);
+    EscrowGetDeals_output output = escrowGetDealsOutput(nodeIp, nodePort, seed, 0, 0);
 
     for (int i = 0; i < output.proposedDealsAmount; i++)
     {
@@ -215,7 +214,7 @@ int64_t escrowGetSharesFeesForDeal(const char* nodeIp, int nodePort, const char*
     return -1;
 }
 
-EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, const char* seed)
+EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, const char* seed, const int64_t proposedOffset, const int64_t publicOffset)
 {
     EscrowGetDeals_input input;
     uint8_t subseed[32] = { 0 };
@@ -226,6 +225,10 @@ EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, con
     getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
     memset(input.owner, 0, 32);
     memcpy(input.owner, sourcePublicKey, 32);
+    input.proposedOffset = proposedOffset;
+    input.publicOffset = publicOffset;
+
+    LOG("\n\n%lld %lld\n\n", input.proposedOffset, input.publicOffset);
 
     auto qc = make_qc(nodeIp, nodePort);
     if (!qc) {
@@ -240,7 +243,7 @@ EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, con
     } req;
 
     memset(&req, 0, sizeof(req));
-    req.rcf.contractIndex = RANDOM_CONTRACT_INDEX;
+    req.rcf.contractIndex = ESCROW_CONTRACT_INDEX;
     req.rcf.inputType = ESCROW_GET_DEALS;
     req.rcf.inputSize = sizeof(input);
     memcpy(&req.in, &input, sizeof(input));
@@ -270,7 +273,7 @@ void escrowAcceptDeal(const char* nodeIp, int nodePort, const char* seed, const 
 
     if (requestedQU < 0 || sharesFees < 0)
     {
-        LOG("Failed to get requestedQU or sharesFees for deal with index: %d", index);
+        LOG("Failed to get requestedQU or sharesFees for deal with index: %lld", index);
         return;
     }
     uint64_t fee = ESCROW_ACCEPT_DEAL_FEE + requestedQU + sharesFees;
@@ -313,7 +316,7 @@ void escrowOperateDeal(const char* nodeIp, int nodePort, const char* seed, const
     getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
     getIdentityFromPublicKey(sourcePublicKey, publicIdentity, isLowerCase);
     memset(destPublicKey, 0, 32);
-    ((uint64_t*) destPublicKey)[0] = RANDOM_CONTRACT_INDEX;
+    ((uint64_t*) destPublicKey)[0] = ESCROW_CONTRACT_INDEX;
 
     struct {
         RequestResponseHeader header;
@@ -382,7 +385,7 @@ void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, co
     getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
     getIdentityFromPublicKey(sourcePublicKey, publicIdentity, isLowerCase);
     memset(destPublicKey, 0, 32);
-    ((uint64_t*) destPublicKey)[0] = RANDOM_CONTRACT_INDEX;
+    ((uint64_t*) destPublicKey)[0] = ESCROW_CONTRACT_INDEX;
 
     struct {
         RequestResponseHeader header;
@@ -453,7 +456,7 @@ void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, cons
     } req;
 
     memset(&req, 0, sizeof(req));
-    req.rcf.contractIndex = RANDOM_CONTRACT_INDEX;
+    req.rcf.contractIndex = ESCROW_CONTRACT_INDEX;
     req.rcf.inputType = ESCROW_GET_FREE_ASSET;
     req.rcf.inputSize = sizeof(input);
     memcpy(&req.in, &input, sizeof(input));
@@ -469,7 +472,7 @@ void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, cons
         output = qc->receivePacketWithHeaderAs<EscrowGetFreeAsset_output>();
     }
     catch (std::logic_error) {
-        LOG("Failed to get deals.\n");
+        LOG("Failed to get free asset amount.\n");
         return;
     }
 

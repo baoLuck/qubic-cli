@@ -24,7 +24,7 @@
 #include "qearn.h"
 #include "msvault.h"
 #include "testUtils.h"
-#include "random.h"
+#include "escrow.h"
 
 #define DEFAULT_TIMEOUT_MSEC 1000
 

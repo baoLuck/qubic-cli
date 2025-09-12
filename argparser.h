@@ -296,8 +296,8 @@ void print_help()
     printf("\t\tCancel the deal. The deal index can be obtained through -escrowgetdeals.\n");
     printf("\t-escrowtransferrights <ASSET_NAME> <ISSUER> <AMOUNT>\n");
     printf("\t\tReturn managing rights of asset to QX sc\n");
-    printf("\t-escrowgetdeals\n");
-    printf("\t\tGet deals. No parameters, seed required.\n");
+    printf("\t-escrowgetdeals <PROPOSED_OFFSET> <PUBLIC_OFFSET>\n");
+    printf("\t\tGet owned, proposed and public deals. Seed required.\n");
     printf("\t-escrowgetfreeasset <ASSET_NAME> <ISSUER>\n");
     printf("\t\tGet unblocked assets amount.\n");
 }
@@ -1559,8 +1559,11 @@ void parseArgument(int argc, char** argv)
         }
         if (strcmp(argv[i], "-escrowgetdeals") == 0)
         {
+            CHECK_NUMBER_OF_PARAMETERS(2)
             g_cmd = ESCROW_GET_DEALS_CMD;
-            i++;
+            g_escrow_proposedOffset = charToNumber(argv[i + 1]);
+            g_escrow_publicOffset = charToNumber(argv[i + 2]);
+            i += 3;
             CHECK_OVER_PARAMETERS
             return;
         }

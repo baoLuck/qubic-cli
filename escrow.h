@@ -22,6 +22,8 @@ struct EscrowCreateDeal_input {
 
 struct EscrowGetDeals_input {
     uint8_t owner[32];
+    int64_t proposedOffset;
+    int64_t publicOffset;
 };
 struct EscrowGetDeals_output {
     uint64_t ownedDealsAmount;
@@ -93,7 +95,7 @@ void escrowCreateDeal(const char* nodeIp, int nodePort, const char* seed,
     const char* acceptorId,
     const char* offeredAssetsCommaSeparated,
     const char* requestedAssetsCommaSeparated);
-void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed);
+void escrowGetDeals(const char* nodeIp, int nodePort, const char* seed, const int64_t proposedOffset, const int64_t publicOffset);
 void escrowAcceptDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
 void escrowMakeDealPublic(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
 void escrowCancelDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index);
@@ -101,7 +103,7 @@ void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, co
 void escrowOperateDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t index, const int64_t fee, const unsigned short inputType);
 void escrowGetFreeAsset(const char* nodeIp, int nodePort, const char* seed, const char* assetName, const char* issuer);
 
-EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, const char* seed);
+EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, const char* seed, const int64_t proposedOffset, const int64_t publicOffset);
 int64_t escrowGetRequestedQUForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index);
 int64_t escrowGetSharesFeesForDeal(const char* nodeIp, int nodePort, const char* seed, const int64_t& index);
 int parseAssets(const std::string& inputStr, EscrowCreateDeal_input::AssetWithAmount* outputArray, const int& maxCount, uint64_t& QUAmount, uint64_t& sharesFees);

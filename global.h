@@ -114,3 +114,5 @@ int64_t g_escrow_dealIndex = 0;
 char* g_escrow_assetName = nullptr;
 char* g_escrow_issuer = nullptr;
 int64_t g_escrow_amount = 0;
+int64_t g_escrow_proposedOffset = 0;
+int64_t g_escrow_publicOffset = 0;

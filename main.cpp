@@ -17,7 +17,7 @@
 #include "qvault.h"
 #include "msvault.h"
 #include "testUtils.h"
-#include "random.h"
+#include "escrow.h"
 
 int run(int argc, char* argv[])
 {
@@ -624,7 +624,7 @@ int run(int argc, char* argv[])
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
-            escrowGetDeals(g_nodeIp, g_nodePort, g_seed);
+            escrowGetDeals(g_nodeIp, g_nodePort, g_seed, g_escrow_proposedOffset, g_escrow_publicOffset);
             break;
         }
         case ESCROW_ACCEPT_DEAL_CMD:
