@@ -371,8 +371,7 @@ void print_help()
     printf("\n[ESCROW COMMANDS]\n");
     printf("\t-escrowcreatedeal <COUNTER> <ACCEPTOR_ID> <OFFERED_ASSETS> <REQUESTED_ASSETS>\n");
     printf("\t\tCreate deal.\n");
-    printf("\t\t<COUNTER> is unused and will be deleted.\n");
-    printf("\t\t<ACCEPTOR_ID> is identity to which the deal is offered.\n");
+    printf("\t\t<ACCEPTOR_ID> is identity to which the deal is offered. 0 to create public deal.\n");
     printf("\t\t<OFFERED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
     printf("\t\t<REQUESTED_ASSETS> in format QUAmount:name1,issuer1,amount1:name2,issuer2,amount2... Minimum 1 asset, maximum 4 assets (not including QU).\n");
     printf("\t-escrowacceptdeal <DEAL_INDEX>\n");
