@@ -347,12 +347,13 @@ void escrowOperateDeal(const char* nodeIp, int nodePort, const char* seed, const
     LOG("to check your tx confirmation status\n");
 }
 
-void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, const char* assetName, const char* issuer, const int64_t amount)
+void escrowTransferRights(const char* nodeIp, int nodePort, const char* seed, const char* assetName, const char* issuer, const uint32_t contractIndex, const int64_t amount)
 {
     TransferShareManagementRights_input input;
     memset(&input.asset.assetName, 0, 8);
     memcpy(&input.asset.assetName, assetName, std::min(strlen(assetName), (size_t) 7));
     input.amount = amount;
+    input.contractIndex = contractIndex;
     memset(input.asset.issuer, 0, 32);
     getPublicKeyFromIdentity(issuer, input.asset.issuer);
 
