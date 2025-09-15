@@ -17,7 +17,7 @@
 #include "qvault.h"
 #include "msvault.h"
 #include "testUtils.h"
-#include "random.h"
+#include "qbond.h"
 
 int run(int argc, char* argv[])
 {
@@ -652,6 +652,13 @@ int run(int argc, char* argv[])
             qbondRemoveBidOrder(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_mbondPrice, g_qbond_mbondsAmount);
             break;
         }
+        case QBOND_BURN_QU_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            qbondBurn(g_nodeIp, g_nodePort, g_seed, g_qbond_burnAmount);
+            break;
+        }
         case QBOND_GET_EPOCH_INFO_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
@@ -664,6 +671,12 @@ int run(int argc, char* argv[])
             sanityCheckNode(g_nodeIp, g_nodePort);
             sanityCheckSeed(g_seed);
             qbondGetOrders(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_asksOffset, g_qbond_bidsOffset);
+            break;
+        }
+        case QBOND_GET_TABLE_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qbondGetTable(g_nodeIp, g_nodePort);
             break;
         }
         case TEST_QPI_FUNCTIONS_OUTPUT:

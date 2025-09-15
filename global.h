@@ -114,3 +114,4 @@ int64_t g_qbond_bidsOffset = 0;
 char* g_qbond_targetIdentity = nullptr;
 int64_t g_qbond_mbondsAmount = 0;
 int64_t g_qbond_mbondPrice = 0;
+int64_t g_qbond_burnAmount = 0;

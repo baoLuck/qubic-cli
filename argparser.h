@@ -284,10 +284,14 @@ void print_help()
     printf("\t\tAdd bid order of <AMOUNT> MBonds of <EPOCH> at <PRICE>\n");
     printf("\t-qbondremovebid <EPOCH> <PRICE> <AMOUNT>\n");
     printf("\t\tRemove <AMOUNT> MBonds of <EPOCH> from bid order at <PRICE>\n");
+    printf("\t-qbondburnqu <AMOUNT>\n");
+    printf("\t\tBurn <AMOUNT> of qu by QBOND sc.\n");
     printf("\t-qbondgetinfoperepoch <EPOCH>\n");
     printf("\t\tGet overall information about <EPOCH> (stakers amount, total staked, APY)\n");
     printf("\t-qbondgetorders <EPOCH> <ASKS_OFFSET> <BIDS_OFFSET>\n");
     printf("\t\tGet orders of <EPOCH> MBonds.\n");
+    printf("\t-qbondtable\n");
+    printf("\t\tGet info about APY of each MBond.\n");
 
     printf("\n[TESTING COMMANDS]\n");
     printf("\t-testqpifunctionsoutput\n");
@@ -1608,6 +1612,15 @@ void parseArgument(int argc, char** argv)
             CHECK_OVER_PARAMETERS
             return;
         }
+        if (strcmp(argv[i], "-qbondburnqu") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBOND_BURN_QU_CMD;
+            g_qbond_burnAmount = charToNumber(argv[i + 1]);
+            i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
         if (strcmp(argv[i], "-qbondgetinfoperepoch") == 0)
         {
             CHECK_NUMBER_OF_PARAMETERS(1)
@@ -1625,6 +1638,13 @@ void parseArgument(int argc, char** argv)
             g_qbond_asksOffset = charToNumber(argv[i + 2]);
             g_qbond_bidsOffset = charToNumber(argv[i + 3]);
             i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondtable") == 0)
+        {
+            g_cmd = QBOND_GET_TABLE_CMD;
+            i++;
             CHECK_OVER_PARAMETERS
             return;
         }

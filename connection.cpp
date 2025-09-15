@@ -24,7 +24,7 @@
 #include "qearn.h"
 #include "msvault.h"
 #include "testUtils.h"
-#include "random.h"
+#include "qbond.h"
 
 #define DEFAULT_TIMEOUT_MSEC 1000
 
@@ -343,6 +343,7 @@ template MsVaultGetVaultOwners_output QubicConnection::receivePacketWithHeaderAs
 // QBOND
 template GetInfoPerEpoch_output QubicConnection::receivePacketWithHeaderAs<GetInfoPerEpoch_output>();
 template GetOrders_output QubicConnection::receivePacketWithHeaderAs<GetOrders_output>();
+template MBondsTable_output QubicConnection::receivePacketWithHeaderAs<MBondsTable_output>();
 
 // TESTING
 template QpiFunctionsOutput QubicConnection::receivePacketWithHeaderAs<QpiFunctionsOutput>();
