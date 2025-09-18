@@ -290,8 +290,12 @@ void print_help()
     printf("\t\tGet overall information about <EPOCH> (stakers amount, total staked, APY)\n");
     printf("\t-qbondgetorders <EPOCH> <ASKS_OFFSET> <BIDS_OFFSET>\n");
     printf("\t\tGet orders of <EPOCH> MBonds.\n");
+    printf("\t-qbondgetuserorders <OWNER> <ASKS_OFFSET> <BIDS_OFFSET>\n");
+    printf("\t\tGet MBonds orders owner by <OWNER>.\n");
     printf("\t-qbondtable\n");
     printf("\t\tGet info about APY of each MBond.\n");
+    printf("\t-qbondgetusermbonds <OWNER>\n");
+    printf("\t\tGet MBonds owned by the <OWNER>.\n");
 
     printf("\n[TESTING COMMANDS]\n");
     printf("\t-testqpifunctionsoutput\n");
@@ -1641,10 +1645,30 @@ void parseArgument(int argc, char** argv)
             CHECK_OVER_PARAMETERS
             return;
         }
+        if (strcmp(argv[i], "-qbondgetuserorders") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QBOND_GET_USER_ORDERS_CMD;
+            g_qbond_owner = argv[i + 1];
+            g_qbond_asksOffset = charToNumber(argv[i + 2]);
+            g_qbond_bidsOffset = charToNumber(argv[i + 3]);
+            i += 4;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
         if (strcmp(argv[i], "-qbondtable") == 0)
         {
             g_cmd = QBOND_GET_TABLE_CMD;
             i++;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondgetusermbonds") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(1)
+            g_cmd = QBOND_GET_USER_MBONDS_CMD;
+            g_qbond_owner = argv[i + 1];
+            i += 2;
             CHECK_OVER_PARAMETERS
             return;
         }

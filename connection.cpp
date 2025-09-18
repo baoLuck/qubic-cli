@@ -343,7 +343,9 @@ template MsVaultGetVaultOwners_output QubicConnection::receivePacketWithHeaderAs
 // QBOND
 template GetInfoPerEpoch_output QubicConnection::receivePacketWithHeaderAs<GetInfoPerEpoch_output>();
 template GetOrders_output QubicConnection::receivePacketWithHeaderAs<GetOrders_output>();
+template GetUserOrders_output QubicConnection::receivePacketWithHeaderAs<GetUserOrders_output>();
 template MBondsTable_output QubicConnection::receivePacketWithHeaderAs<MBondsTable_output>();
+template GetUserMBonds_output QubicConnection::receivePacketWithHeaderAs<GetUserMBonds_output>();
 
 // TESTING
 template QpiFunctionsOutput QubicConnection::receivePacketWithHeaderAs<QpiFunctionsOutput>();

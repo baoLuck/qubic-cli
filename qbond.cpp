@@ -18,8 +18,10 @@
 #define QBOND_BURN 7
 
 #define QBOND_GET_INFO_PER_EPOCH 1
-#define QBOND_GET_ASK_ORDERS 2
-#define QBOND_GET_TABLE 3
+#define QBOND_GET_ORDERS 2
+#define QBOND_GET_USER_ORDERS 3
+#define QBOND_GET_TABLE 4
+#define QBOND_GET_USER_MBONDS 5
 
 constexpr int64_t QBOND_BASE_STAKE_AMOUNT = 1000000ULL;
 constexpr uint64_t QBOND_STAKE_FEE = 50; // 0.5%
@@ -410,7 +412,7 @@ void qbondGetOrders(const char* nodeIp, int nodePort, const char* seed, const in
 
     memset(&req, 0, sizeof(req));
     req.rcf.contractIndex = QBOND_CONTRACT_INDEX;
-    req.rcf.inputType = QBOND_GET_ASK_ORDERS;
+    req.rcf.inputType = QBOND_GET_ORDERS;
     req.rcf.inputSize = sizeof(input);
     memcpy(&req.in, &input, sizeof(input));
     req.header.setSize(sizeof(req.header) + sizeof(req.rcf) + sizeof(input));
@@ -423,6 +425,51 @@ void qbondGetOrders(const char* nodeIp, int nodePort, const char* seed, const in
     memset(&output, 0, sizeof(output));
     try {
         output = qc->receivePacketWithHeaderAs<GetOrders_output>();
+    }
+    catch (std::logic_error) {
+        LOG("Failed to get orders.\n");
+        return;
+    }
+
+    printOrders("ASK Orders", output.askOrders);
+    printOrders("BID Orders", output.bidOrders);
+}
+
+void qbondGetUserOrders(const char* nodeIp, int nodePort, const char* seed, const char* owner, const int64_t asksOffset, const int64_t bidsOffset)
+{
+    GetUserOrders_input input;
+    memset(input.owner, 0, 32);
+    getPublicKeyFromIdentity(owner, input.owner);
+    input.asksOffset = asksOffset;
+    input.bidsOffset = bidsOffset;
+
+    auto qc = make_qc(nodeIp, nodePort);
+    if (!qc) {
+        LOG("Failed to connect to node.\n");
+        return;
+    }
+
+    struct {
+        RequestResponseHeader header;
+        RequestContractFunction rcf;
+        GetUserOrders_input in;
+    } req;
+
+    memset(&req, 0, sizeof(req));
+    req.rcf.contractIndex = QBOND_CONTRACT_INDEX;
+    req.rcf.inputType = QBOND_GET_USER_ORDERS;
+    req.rcf.inputSize = sizeof(input);
+    memcpy(&req.in, &input, sizeof(input));
+    req.header.setSize(sizeof(req.header) + sizeof(req.rcf) + sizeof(input));
+    req.header.randomizeDejavu();
+    req.header.setType(RequestContractFunction::type());
+
+    qc->sendData((uint8_t*)&req, req.header.size());
+
+    GetUserOrders_output output;
+    memset(&output, 0, sizeof(output));
+    try {
+        output = qc->receivePacketWithHeaderAs<GetUserOrders_output>();
     }
     catch (std::logic_error) {
         LOG("Failed to get orders.\n");
@@ -483,7 +530,55 @@ void qbondGetTable(const char* nodeIp, int nodePort)
     }
 }
 
-void printOrders(const char* ordersType, const GetOrders_output::Order orders[])
+void qbondGetUserMBonds(const char* nodeIp, int nodePort, const char* seed, const char* owner)
+{
+    auto qc = make_qc(nodeIp, nodePort);
+    if (!qc) {
+        LOG("Failed to connect to node.\n");
+        return;
+    }
+
+    struct {
+        RequestResponseHeader header;
+        RequestContractFunction rcf;
+        GetUserMBonds_input in;
+    } req;
+
+    memset(&req, 0, sizeof(req));
+    req.rcf.contractIndex = QBOND_CONTRACT_INDEX;
+    req.rcf.inputType = QBOND_GET_USER_MBONDS;
+    req.rcf.inputSize = sizeof(req.in);
+    memset(req.in.owner, 0, 32);
+    getPublicKeyFromIdentity(owner, req.in.owner);
+    req.header.setSize(sizeof(req.header) + sizeof(req.rcf) + sizeof(req.in));
+    req.header.randomizeDejavu();
+    req.header.setType(RequestContractFunction::type());
+
+    qc->sendData((uint8_t*)&req, req.header.size());
+
+    GetUserMBonds_output output;
+    memset(&output, 0, sizeof(output));
+    try {
+        output = qc->receivePacketWithHeaderAs<GetUserMBonds_output>();
+    }
+    catch (std::logic_error) {
+        LOG("Failed to get user MBonds.\n");
+        return;
+    }
+
+    LOG("MBonds owned by %s:\n\n%-9s%-11s%s\n", owner, "MBond", "Amount", "APY");
+    for (int i = 0; i < 256; i++)
+    {
+        if (output.mbonds[i].epoch == 0)
+        {
+            LOG("\n **APY of the current epoch is not final\n");
+            break;
+        }
+        LOG("MBND%-5lld%-11lld%.2f %%\n", output.mbonds[i].epoch, output.mbonds[i].amount, double(output.mbonds[i].apy) / 100000.0);
+    }
+}
+
+void printOrders(const char* ordersType, const Order orders[])
 {
     LOG("%s\n%-62s%-13s%-13s%-8s%s\n", ordersType, "Owner", "MBond name", "Price", "Amount", "Total");
     for (int i = 0; i < 256; i++)

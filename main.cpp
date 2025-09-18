@@ -673,10 +673,24 @@ int run(int argc, char* argv[])
             qbondGetOrders(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_asksOffset, g_qbond_bidsOffset);
             break;
         }
+        case QBOND_GET_USER_ORDERS_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            qbondGetUserOrders(g_nodeIp, g_nodePort, g_seed, g_qbond_owner, g_qbond_asksOffset, g_qbond_bidsOffset);
+            break;
+        }
         case QBOND_GET_TABLE_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
             qbondGetTable(g_nodeIp, g_nodePort);
+            break;
+        }
+        case QBOND_GET_USER_MBONDS_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            qbondGetUserMBonds(g_nodeIp, g_nodePort, g_seed, g_qbond_owner);
             break;
         }
         case TEST_QPI_FUNCTIONS_OUTPUT:
