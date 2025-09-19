@@ -286,6 +286,10 @@ void print_help()
     printf("\t\tRemove <AMOUNT> MBonds of <EPOCH> from bid order at <PRICE>\n");
     printf("\t-qbondburnqu <AMOUNT>\n");
     printf("\t\tBurn <AMOUNT> of qu by QBOND sc.\n");
+    printf("\t-qbondupdatecfa <IDENTITY> <OPERATION>\n");
+    printf("\t\tOnly for admin! Update commission free addresses. <OPERATION> must be 0 to remove <IDENTITY> or 1 to add.\n");
+    printf("\t-qbondgetfees\n");
+    printf("\t\tGet fees of QBond sc.\n");
     printf("\t-qbondgetinfoperepoch <EPOCH>\n");
     printf("\t\tGet overall information about <EPOCH> (stakers amount, total staked, APY)\n");
     printf("\t-qbondgetorders <EPOCH> <ASKS_OFFSET> <BIDS_OFFSET>\n");
@@ -1622,6 +1626,23 @@ void parseArgument(int argc, char** argv)
             g_cmd = QBOND_BURN_QU_CMD;
             g_qbond_burnAmount = charToNumber(argv[i + 1]);
             i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondupdatecfa") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(2)
+            g_cmd = QBOND_UPDATE_CFA_CMD;
+            g_qbond_targetIdentity = argv[i + 1];
+            g_qbond_updateCFAOperation = (bool)charToNumber(argv[i + 2]);
+            i += 3;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondgetfees") == 0)
+        {
+            g_cmd = QBOND_GET_FEES_CMD;
+            i++;
             CHECK_OVER_PARAMETERS
             return;
         }

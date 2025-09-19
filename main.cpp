@@ -659,6 +659,19 @@ int run(int argc, char* argv[])
             qbondBurn(g_nodeIp, g_nodePort, g_seed, g_qbond_burnAmount);
             break;
         }
+        case QBOND_UPDATE_CFA_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            sanityCheckSeed(g_seed);
+            qbondUpdateCFA(g_nodeIp, g_nodePort, g_seed, g_qbond_targetIdentity, g_qbond_updateCFAOperation);
+            break;
+        }
+        case QBOND_GET_FEES_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qbondGetFees(g_nodeIp, g_nodePort);
+            break;
+        }
         case QBOND_GET_EPOCH_INFO_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);

@@ -40,6 +40,12 @@ struct Burn_output
     }
 };
 
+struct UpdateCFA_input
+{
+    uint8_t user[32];
+    uint64_t operation;
+};
+
 struct GetInfoPerEpoch_input {
     int64_t epoch;
 };
@@ -47,6 +53,19 @@ struct GetInfoPerEpoch_output {
     uint64_t stakersAmount;
     int64_t totalStaked;
     int64_t apy;
+    static constexpr unsigned char type() {
+        return RespondContractFunction::type();
+    }
+};
+
+struct GetFees_input
+{
+};
+struct GetFees_output
+{
+    uint64_t stakeFeePercent;
+    uint64_t tradeFeePercent;
+    uint64_t transferFee;
     static constexpr unsigned char type() {
         return RespondContractFunction::type();
     }
@@ -95,7 +114,6 @@ struct MBondsTable_input
 };
 struct MBondsTable_output
 {
-    int64_t earned;
     struct TableEntry
     {
         int64_t epoch;
@@ -113,13 +131,13 @@ struct GetUserMBonds_input
 };
 struct GetUserMBonds_output
 {
+    int64_t totalMBondsAmount;
     struct MBondEntity
     {
         int64_t epoch;
         int64_t amount;
         uint64_t apy;
     };
-    
     MBondEntity mbonds[256];
     static constexpr unsigned char type() {
         return RespondContractFunction::type();
@@ -133,6 +151,8 @@ void qbondRemoveAskOrder(const char* nodeIp, int nodePort, const char* seed, con
 void qbondAddBidOrder(const char* nodeIp, int nodePort, const char* seed, const int64_t epoch, const int64_t mbondPrice, const int64_t mbondsAmount);
 void qbondRemoveBidOrder(const char* nodeIp, int nodePort, const char* seed, const int64_t epoch, const int64_t mbondPrice, const int64_t mbondsAmount);
 void qbondBurn(const char* nodeIp, int nodePort, const char* seed, const int64_t burnAmount);
+void qbondUpdateCFA(const char* nodeIp, int nodePort, const char* seed, const char* user, const bool operation);
+void qbondGetFees(const char* nodeIp, int nodePort);
 void qbondGetInfoPerEpoch(const char* nodeIp, int nodePort, const char* seed, const int64_t epoch);
 void qbondGetOrders(const char* nodeIp, int nodePort, const char* seed, const int64_t epoch, const int64_t asksOffset, const int64_t bidsOffset);
 void qbondGetUserOrders(const char* nodeIp, int nodePort, const char* seed, const char* owner, const int64_t asksOffset, const int64_t bidsOffset);
