@@ -290,6 +290,8 @@ void print_help()
     printf("\t\tOnly for admin! Update commission free addresses. <OPERATION> must be 0 to remove <IDENTITY> or 1 to add.\n");
     printf("\t-qbondgetfees\n");
     printf("\t\tGet fees of QBond sc.\n");
+    printf("\t-qbondgetearnedfees\n");
+    printf("\t\tGet earned fees by QBond sc.\n");
     printf("\t-qbondgetinfoperepoch <EPOCH>\n");
     printf("\t\tGet overall information about <EPOCH> (stakers amount, total staked, APY)\n");
     printf("\t-qbondgetorders <EPOCH> <ASKS_OFFSET> <BIDS_OFFSET>\n");
@@ -300,6 +302,8 @@ void print_help()
     printf("\t\tGet info about APY of each MBond.\n");
     printf("\t-qbondgetusermbonds <OWNER>\n");
     printf("\t\tGet MBonds owned by the <OWNER>.\n");
+    printf("\t-qbondgetcfa\n");
+    printf("\t\tGet list of commission free addresses.\n");
 
     printf("\n[TESTING COMMANDS]\n");
     printf("\t-testqpifunctionsoutput\n");
@@ -1646,6 +1650,13 @@ void parseArgument(int argc, char** argv)
             CHECK_OVER_PARAMETERS
             return;
         }
+        if (strcmp(argv[i], "-qbondgetearnedfees") == 0)
+        {
+            g_cmd = QBOND_GET_EARNED_FEES_CMD;
+            i++;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
         if (strcmp(argv[i], "-qbondgetinfoperepoch") == 0)
         {
             CHECK_NUMBER_OF_PARAMETERS(1)
@@ -1690,6 +1701,13 @@ void parseArgument(int argc, char** argv)
             g_cmd = QBOND_GET_USER_MBONDS_CMD;
             g_qbond_owner = argv[i + 1];
             i += 2;
+            CHECK_OVER_PARAMETERS
+            return;
+        }
+        if (strcmp(argv[i], "-qbondgetcfa") == 0)
+        {
+            g_cmd = QBOND_GET_CFA_CMD;
+            i++;
             CHECK_OVER_PARAMETERS
             return;
         }

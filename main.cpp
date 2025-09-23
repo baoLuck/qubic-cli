@@ -672,25 +672,28 @@ int run(int argc, char* argv[])
             qbondGetFees(g_nodeIp, g_nodePort);
             break;
         }
+        case QBOND_GET_EARNED_FEES_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qbondGetEarnedFees(g_nodeIp, g_nodePort);
+            break;
+        }
         case QBOND_GET_EPOCH_INFO_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            qbondGetInfoPerEpoch(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch);
+            qbondGetInfoPerEpoch(g_nodeIp, g_nodePort, g_qbond_epoch);
             break;
         }
         case QBOND_GET_ORDERS_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            qbondGetOrders(g_nodeIp, g_nodePort, g_seed, g_qbond_epoch, g_qbond_asksOffset, g_qbond_bidsOffset);
+            qbondGetOrders(g_nodeIp, g_nodePort, g_qbond_epoch, g_qbond_asksOffset, g_qbond_bidsOffset);
             break;
         }
         case QBOND_GET_USER_ORDERS_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            qbondGetUserOrders(g_nodeIp, g_nodePort, g_seed, g_qbond_owner, g_qbond_asksOffset, g_qbond_bidsOffset);
+            qbondGetUserOrders(g_nodeIp, g_nodePort, g_qbond_owner, g_qbond_asksOffset, g_qbond_bidsOffset);
             break;
         }
         case QBOND_GET_TABLE_CMD:
@@ -702,8 +705,13 @@ int run(int argc, char* argv[])
         case QBOND_GET_USER_MBONDS_CMD:
         {
             sanityCheckNode(g_nodeIp, g_nodePort);
-            sanityCheckSeed(g_seed);
-            qbondGetUserMBonds(g_nodeIp, g_nodePort, g_seed, g_qbond_owner);
+            qbondGetUserMBonds(g_nodeIp, g_nodePort, g_qbond_owner);
+            break;
+        }
+        case QBOND_GET_CFA_CMD:
+        {
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            qbondGetCFA(g_nodeIp, g_nodePort);
             break;
         }
         case TEST_QPI_FUNCTIONS_OUTPUT:

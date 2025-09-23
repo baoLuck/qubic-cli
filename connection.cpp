@@ -347,6 +347,8 @@ template GetUserOrders_output QubicConnection::receivePacketWithHeaderAs<GetUser
 template MBondsTable_output QubicConnection::receivePacketWithHeaderAs<MBondsTable_output>();
 template GetUserMBonds_output QubicConnection::receivePacketWithHeaderAs<GetUserMBonds_output>();
 template GetFees_output QubicConnection::receivePacketWithHeaderAs<GetFees_output>();
+template GetEarnedFees_output QubicConnection::receivePacketWithHeaderAs<GetEarnedFees_output>();
+template GetCFA_output QubicConnection::receivePacketWithHeaderAs<GetCFA_output>();
 
 // TESTING
 template QpiFunctionsOutput QubicConnection::receivePacketWithHeaderAs<QpiFunctionsOutput>();

@@ -19,14 +19,17 @@
 #define QBOND_UPDATE_CFA 8
 
 #define QBOND_GET_FEES 1
-#define QBOND_GET_INFO_PER_EPOCH 2
-#define QBOND_GET_ORDERS 3
-#define QBOND_GET_USER_ORDERS 4
-#define QBOND_GET_TABLE 5
-#define QBOND_GET_USER_MBONDS 6
+#define QBOND_GET_EARNED_FEES 2
+#define QBOND_GET_INFO_PER_EPOCH 3
+#define QBOND_GET_ORDERS 4
+#define QBOND_GET_USER_ORDERS 5
+#define QBOND_GET_TABLE 6
+#define QBOND_GET_USER_MBONDS 7
+#define QBOND_GET_CFA 8
 
 constexpr int64_t QBOND_BASE_STAKE_AMOUNT = 1000000ULL;
 constexpr uint64_t QBOND_STAKE_FEE = 50; // 0.5%
+constexpr auto NULL_ID = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFXIB";
 
 void convertToString(int64_t num, char num_S[])
 {
@@ -447,15 +450,48 @@ void qbondGetFees(const char* nodeIp, int nodePort)
     LOG("Transfer fee: %llu QU\n", output.transferFee);
 }
 
-void qbondGetInfoPerEpoch(const char* nodeIp, int nodePort, const char* seed, const int64_t epoch)
+void qbondGetEarnedFees(const char* nodeIp, int nodePort)
+{
+    auto qc = make_qc(nodeIp, nodePort);
+    if (!qc) {
+        LOG("Failed to connect to node.\n");
+        return;
+    }
+
+    struct {
+        RequestResponseHeader header;
+        RequestContractFunction rcf;
+        GetFees_input in;
+    } req;
+
+    memset(&req, 0, sizeof(req));
+    req.rcf.contractIndex = QBOND_CONTRACT_INDEX;
+    req.rcf.inputType = QBOND_GET_EARNED_FEES;
+    req.rcf.inputSize = sizeof(req.in);
+    req.header.setSize(sizeof(req.header) + sizeof(req.rcf) + sizeof(req.in));
+    req.header.randomizeDejavu();
+    req.header.setType(RequestContractFunction::type());
+
+    qc->sendData((uint8_t*)&req, req.header.size());
+
+    GetEarnedFees_output output;
+    memset(&output, 0, sizeof(output));
+    try {
+        output = qc->receivePacketWithHeaderAs<GetEarnedFees_output>();
+    }
+    catch (std::logic_error) {
+        LOG("Failed to get fees.\n");
+        return;
+    }
+
+    LOG("Stake fees: %llu QU\n", output.stakeFees);
+    LOG("Trade fees: %llu QU\n", output.tradeFees);
+    LOG("Total fees: %llu QU\n", output.stakeFees + output.tradeFees);
+}
+
+void qbondGetInfoPerEpoch(const char* nodeIp, int nodePort, const int64_t epoch)
 {
     GetInfoPerEpoch_input input;
-    uint8_t subseed[32] = { 0 };
-    uint8_t privateKey[32] = { 0 };
-    uint8_t sourcePublicKey[32] = { 0 };
-    getSubseedFromSeed((uint8_t*) seed, subseed);
-    getPrivateKeyFromSubSeed(subseed, privateKey);
-    getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
     input.epoch = epoch;
 
     auto qc = make_qc(nodeIp, nodePort);
@@ -498,7 +534,7 @@ void qbondGetInfoPerEpoch(const char* nodeIp, int nodePort, const char* seed, co
     LOG("Stats for %d epoch:\n   Stakers: %llu\n   Total staked: %s QU\n   Estimated revenue per MBond: %s QU\n   APY: %.2f %%\n", epoch, output.stakersAmount, total, revenue, double(output.apy) / 100000.0);
 }
 
-void qbondGetOrders(const char* nodeIp, int nodePort, const char* seed, const int64_t epoch, const int64_t asksOffset, const int64_t bidsOffset)
+void qbondGetOrders(const char* nodeIp, int nodePort, const int64_t epoch, const int64_t asksOffset, const int64_t bidsOffset)
 {
     GetOrders_input input;
     input.epoch = epoch;
@@ -542,7 +578,7 @@ void qbondGetOrders(const char* nodeIp, int nodePort, const char* seed, const in
     printOrders("BID Orders", output.bidOrders);
 }
 
-void qbondGetUserOrders(const char* nodeIp, int nodePort, const char* seed, const char* owner, const int64_t asksOffset, const int64_t bidsOffset)
+void qbondGetUserOrders(const char* nodeIp, int nodePort, const char* owner, const int64_t asksOffset, const int64_t bidsOffset)
 {
     GetUserOrders_input input;
     memset(input.owner, 0, 32);
@@ -635,7 +671,7 @@ void qbondGetTable(const char* nodeIp, int nodePort)
     }
 }
 
-void qbondGetUserMBonds(const char* nodeIp, int nodePort, const char* seed, const char* owner)
+void qbondGetUserMBonds(const char* nodeIp, int nodePort, const char* owner)
 {
     auto qc = make_qc(nodeIp, nodePort);
     if (!qc) {
@@ -681,6 +717,54 @@ void qbondGetUserMBonds(const char* nodeIp, int nodePort, const char* seed, cons
             break;
         }
         LOG("MBND%-5lld%-11lld%.2f %%\n", output.mbonds[i].epoch, output.mbonds[i].amount, double(output.mbonds[i].apy) / 100000.0);
+    }
+}
+
+void qbondGetCFA(const char* nodeIp, int nodePort)
+{
+    auto qc = make_qc(nodeIp, nodePort);
+    if (!qc) {
+        LOG("Failed to connect to node.\n");
+        return;
+    }
+
+    struct {
+        RequestResponseHeader header;
+        RequestContractFunction rcf;
+        GetCFA_input in;
+    } req;
+
+    memset(&req, 0, sizeof(req));
+    req.rcf.contractIndex = QBOND_CONTRACT_INDEX;
+    req.rcf.inputType = QBOND_GET_CFA;
+    req.rcf.inputSize = sizeof(req.in);
+    req.header.setSize(sizeof(req.header) + sizeof(req.rcf) + sizeof(req.in));
+    req.header.randomizeDejavu();
+    req.header.setType(RequestContractFunction::type());
+
+    qc->sendData((uint8_t*)&req, req.header.size());
+
+    GetCFA_output output;
+    memset(&output, 0, sizeof(output));
+    try {
+        output = qc->receivePacketWithHeaderAs<GetCFA_output>();
+    }
+    catch (std::logic_error) {
+        LOG("Failed to get user MBonds.\n");
+        return;
+    }
+
+    LOG("Commission free addresses:\n");
+    for (int i = 0; i < 1024; i++)
+    {
+        char iden[61];
+        memset(iden, 0, 61);
+        getIdentityFromPublicKey(output.cfa[i], iden, false);
+        if (strcmp(iden, NULL_ID) == 0)
+        {
+            break;
+        }
+        LOG("%d. %s\n", i + 1, iden);
     }
 }
 
