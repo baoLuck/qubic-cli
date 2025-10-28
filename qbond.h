@@ -126,6 +126,8 @@ struct MBondsTable_output
     struct TableEntry
     {
         int64_t epoch;
+        int64_t totalStakedQBond;
+        int64_t totalStakedQEarn;
         uint64_t apy;
     };
     TableEntry entries[512];

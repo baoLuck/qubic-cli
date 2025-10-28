@@ -142,7 +142,7 @@ void printReceipt(Transaction& tx, const char* txHash = nullptr, const uint8_t* 
     LOG("From: %s\n", sourceIdentity);
     LOG("To: %s\n", dstIdentity);
     LOG("Input type: %u\n", tx.inputType);
-    LOG("Amount: %lu\n", tx.amount);
+    LOG("Amount: %lld\n", tx.amount);
     LOG("Tick: %u\n", tx.tick);
     LOG("Extra data size: %u\n", tx.inputSize);
     if (extraData != nullptr && tx.inputSize)

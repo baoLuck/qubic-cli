@@ -97,7 +97,7 @@ void qbondStake(const char* nodeIp, int nodePort, const char* seed, const int64_
     memset(&packet, 0, sizeof(packet));
     memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
     memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
-    packet.transaction.amount = millionsOfQu * QBOND_BASE_STAKE_AMOUNT + millionsOfQu * QBOND_BASE_STAKE_AMOUNT * QBOND_STAKE_FEE / 10000ULL;
+    packet.transaction.amount = millionsOfQu * QBOND_BASE_STAKE_AMOUNT + millionsOfQu * QBOND_BASE_STAKE_AMOUNT / 10000ULL * QBOND_STAKE_FEE;
     uint32_t currentTick = getTickNumberFromNode(qc);
     packet.transaction.tick = currentTick + 2;
     packet.transaction.inputType = QBOND_STAKE;
@@ -165,7 +165,7 @@ void qbondTransfer(const char* nodeIp, int nodePort, const char* seed, const cha
     memset(&packet, 0, sizeof(packet));
     memcpy(packet.transaction.sourcePublicKey, sourcePublicKey, 32);
     memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
-    packet.transaction.amount = 1;
+    packet.transaction.amount = 100;
     uint32_t currentTick = getTickNumberFromNode(qc);
     packet.transaction.tick = currentTick + 2;
     packet.transaction.inputType = QBOND_TRANSFER;
@@ -657,7 +657,7 @@ void qbondGetTable(const char* nodeIp, int nodePort)
         return;
     }
 
-    LOG("%-9s%-19s%s\n", "MBond", "Estimated revenue", "APY");
+    LOG("%-9s%-20s%-20s%-19s%s\n", "MBond", "Total staked QBond", "Total staked QEarn", "Estimated revenue", "APY");
     for (int i = 0; i < 512; i++)
     {
         if (output.entries[i].epoch == 0)
@@ -667,7 +667,7 @@ void qbondGetTable(const char* nodeIp, int nodePort)
         }
         char revenue[100] = {0,};
         convertToString((int64_t) (QBOND_BASE_STAKE_AMOUNT * (1.0 + double(output.entries[i].apy) / 10000000.0)), revenue);
-        LOG("MBND%-5lld%-19s%.2f %%\n", output.entries[i].epoch, revenue, double(output.entries[i].apy) / 100000.0);
+        LOG("MBND%-5lld%-20lld%-20lld%-19s%.2f %%\n", output.entries[i].epoch, output.entries[i].totalStakedQBond, output.entries[i].totalStakedQEarn, revenue, double(output.entries[i].apy) / 100000.0);
     }
 }
 
