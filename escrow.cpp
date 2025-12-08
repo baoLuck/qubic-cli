@@ -224,7 +224,7 @@ EscrowGetDeals_output escrowGetDealsOutput(const char* nodeIp, int nodePort, con
     getPrivateKeyFromSubSeed(subseed, privateKey);
     getPublicKeyFromPrivateKey(privateKey, sourcePublicKey);
     memset(input.owner, 0, 32);
-    memcpy(input.owner, sourcePublicKey, 32);
+    memcpy(input.owner, sourcePublicKey, 32); 
     input.proposedOffset = proposedOffset;
     input.publicOffset = publicOffset;
 
