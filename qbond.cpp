@@ -7,7 +7,7 @@
 #include "keyUtils.h"
 #include "K12AndKeyUtil.h"
 
-#define QBOND_CONTRACT_INDEX 11
+#define QBOND_CONTRACT_INDEX 17
 
 #define QBOND_STAKE 1
 #define QBOND_TRANSFER 2
@@ -254,7 +254,7 @@ void qbondOperateOrder(const char* nodeIp, int nodePort, const char* seed, const
     memcpy(packet.transaction.destinationPublicKey, destPublicKey, 32);
     packet.transaction.amount = fee;
     uint32_t currentTick = getTickNumberFromNode(qc);
-    packet.transaction.tick = currentTick + 2;
+    packet.transaction.tick = currentTick + 10;
     packet.transaction.inputType = inputType;
     packet.transaction.inputSize = sizeof(input);
     memcpy(&packet.inputData, &input, sizeof(input));
