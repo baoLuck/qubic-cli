@@ -696,6 +696,10 @@ int run(int argc, char* argv[])
             sanityCheckNode(g_nodeIp, g_nodePort);
             getAmountForQearnInUpcomingEpoch(g_nodeIp, g_nodePort, g_qvault_epoch);
             break;
+        case QVAULT_COMMAND_GET_VOTE_IN_PROPOSAL:
+            sanityCheckNode(g_nodeIp, g_nodePort);
+            getVoteInProposal(g_nodeIp, g_nodePort, g_qvault_proposal_type, g_qvault_proposal_id, g_qvaultIdentity);
+            break;
 
         // MSVAULT
         case MSVAULT_REGISTER_VAULT_CMD:

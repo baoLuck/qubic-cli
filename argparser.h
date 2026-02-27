@@ -348,7 +348,9 @@ void print_help()
 	printf("\t-qvaultgetnumberofholderandaverageamount\n");
 	printf("\t\tGetting the number of Qcap holder and average amount\n");
 	printf("\t-qvaultgetamountforqearninupcomingepoch <EPOCH>\n");
-	printf("\t\tGetting the amount that should be locked in Qearn SC in the <EPOCH>\n");
+	printf("\t\tGetting the amount that should be locked in Qearn SC in the <EPOCH>\n");\
+    printf("\t-qvaultgetvoteinproposal <PROPOSAL_TYPE> <PROPOSAL_ID> <USER_ID>\n");
+	printf("\t\tShows whether the <USER_ID> voted for proposal with <PROPOSAL_TYPE> and <PROPOSAL_ID>.\n");
     
     printf("\n[MSVAULT COMMANDS]\n");
     printf("\t-msvaultregistervault <REQUIRED_APPROVALS> <VAULT_NAME> <OWNER_ID_COMMA_SEPARATED>\n");
@@ -2200,6 +2202,17 @@ void parseArgument(int argc, char** argv)
             g_cmd = QVAULT_COMMAND_GET_AMOUNT_FOR_QEARN_IN_UPCOMING_EPOCH;
             g_qvault_epoch = uint32_t(charToNumber(argv[i + 1]));
             i += 2;
+            CHECK_OVER_PARAMETERS;
+            break;
+        }
+        if (strcmp(argv[i], "-qvaultgetvoteinproposal") == 0)
+        {
+            CHECK_NUMBER_OF_PARAMETERS(3)
+            g_cmd = QVAULT_COMMAND_GET_VOTE_IN_PROPOSAL;
+            g_qvault_proposal_type = uint32_t(charToNumber(argv[i + 1]));
+            g_qvault_proposal_id = uint32_t(charToNumber(argv[i + 2]));
+            g_qvaultIdentity = argv[i + 3];
+            i += 4;
             CHECK_OVER_PARAMETERS;
             break;
         }

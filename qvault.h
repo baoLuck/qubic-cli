@@ -298,7 +298,7 @@ struct stakingInfo
 
 struct QvaultGetIdentitiesHvVtPw_output
 {
-    int32_t returnCode;
+    int64_t returnCode;
     uint8_t idList[256][32];
     uint32_t amountList[256];
 
@@ -455,6 +455,25 @@ struct QvaultGetAmountForQearnInUpcomingEpoch_output
     }
 };
 
+struct QvaultGetVoteInProposal_input
+{
+    uint8_t user[32];
+    uint64_t proposalType;
+    uint64_t proposalId;
+};
+
+struct QvaultGetVoteInProposal_output
+{
+    int32_t returnCode;
+    uint16_t isVoted;
+    uint16_t votingDecision;
+
+    static constexpr unsigned char type()
+    {
+        return RespondContractFunction::type();
+    }
+};
+
 void stake(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, uint32_t amount);
 void unStake(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, uint32_t amount);
 void submitGP(const char* nodeIp, int nodePort, const char* seed, uint32_t scheduledTickOffset, const char* url);
@@ -487,3 +506,4 @@ void getRevenuePerShare(const char* nodeIp, int nodePort, uint32_t contractIndex
 void getAmountOfShareQvaultHold(const char* nodeIp, int nodePort, const char* assetName, const char* issuer);
 void getNumberOfHolderAndAvgAm(const char* nodeIp, int nodePort);
 void getAmountForQearnInUpcomingEpoch(const char* nodeIp, int nodePort, uint32_t epoch);
+void getVoteInProposal(const char* nodeIp, int nodePort, uint32_t proposalType, uint32_t proposalId, const char* user);

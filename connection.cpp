@@ -342,6 +342,7 @@ template QvaultGetRevenuePerShare_output QubicConnection::receivePacketWithHeade
 template QvaultGetAmountOfShareQvaultHold_output QubicConnection::receivePacketWithHeaderAs<QvaultGetAmountOfShareQvaultHold_output>();
 template QvaultGetNumberOfHolderAndAvgAm_output QubicConnection::receivePacketWithHeaderAs<QvaultGetNumberOfHolderAndAvgAm_output>();
 template QvaultGetAmountForQearnInUpcomingEpoch_output QubicConnection::receivePacketWithHeaderAs<QvaultGetAmountForQearnInUpcomingEpoch_output>();
+template QvaultGetVoteInProposal_output QubicConnection::receivePacketWithHeaderAs<QvaultGetVoteInProposal_output>();
 
 // QEARN
 template QEarnGetLockInfoPerEpoch_output QubicConnection::receivePacketWithHeaderAs<QEarnGetLockInfoPerEpoch_output>();

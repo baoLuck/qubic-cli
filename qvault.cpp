@@ -43,6 +43,7 @@ constexpr uint8_t QVAULT_PROPOSAL_NOT_STARTED = 5;
 #define QVAULT_GET_AMOUNT_OF_SHARE_QVAULT_HOLD 18
 #define QVAULT_GET_NUMBER_OF_HOLDER_AND_AVG_AM 19
 #define QVAULT_GET_AMOUNT_FOR_QEARN_IN_UPCOMING_EPOCH 20
+#define QVAULT_GET_VOTE_IN_PROPOSAL 21
 
 // QVAULT PROCEDURES
 #define QVAULT_STAKE 1
@@ -931,7 +932,7 @@ void getIdentitiesHvVtPw(const char* nodeIp, int nodePort, uint32_t offset, uint
 
     if (result.returnCode != 0)
     {
-        printf("Error: returnCode = %d\n", result.returnCode);
+        printf("Error: returnCode = %lld\n", result.returnCode);
         return;
     }
 
@@ -1118,4 +1119,28 @@ void getAmountForQearnInUpcomingEpoch(const char* nodeIp, int nodePort, uint32_t
     }
 
     printf("returnCode: %d\namount: %" PRIu64 "\n", result.returnCode, result.amount);
+}
+
+void getVoteInProposal(const char* nodeIp, int nodePort, uint32_t proposalType, uint32_t proposalId, const char* user)
+{
+    QvaultGetVoteInProposal_input input{};
+    input.proposalType = proposalType;
+    input.proposalId = proposalId;
+    getPublicKeyFromIdentity(user, input.user);
+    QvaultGetVoteInProposal_output result{};
+    if (!runQvaultFunction(nodeIp, nodePort,
+                           QVAULT_GET_VOTE_IN_PROPOSAL,
+                           &input,
+                           sizeof(input),
+                           &result,
+                           sizeof(result)))
+        return;
+
+    if (result.returnCode != 0)
+    {
+        printf("Error: returnCode = %ld\n", result.returnCode);
+        return;
+    }
+
+    printf("returnCode: %ld\nIs voted: %s\nVote: %s\n", result.returnCode, result.isVoted > 0 ? "yes": "no", result.votingDecision > 0 ? "yes": "no");
 }
