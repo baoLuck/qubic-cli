@@ -464,9 +464,9 @@ struct QvaultGetVoteInProposal_input
 
 struct QvaultGetVoteInProposal_output
 {
-    int32_t returnCode;
-    uint16_t isVoted;
-    uint16_t votingDecision;
+    int64_t returnCode;
+    int64_t isVoted;
+    int64_t votingDecision;
 
     static constexpr unsigned char type()
     {
