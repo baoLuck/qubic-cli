@@ -932,7 +932,7 @@ void getIdentitiesHvVtPw(const char* nodeIp, int nodePort, uint32_t offset, uint
 
     if (result.returnCode != 0)
     {
-        printf("Error: returnCode = %lld\n", result.returnCode);
+        printf("Error: returnCode = %I64d\n", result.returnCode);
         return;
     }
 
@@ -1138,9 +1138,9 @@ void getVoteInProposal(const char* nodeIp, int nodePort, uint32_t proposalType, 
 
     if (result.returnCode != 0)
     {
-        printf("Error: returnCode = %lld\n", result.returnCode);
+        printf("Error: returnCode = %I64d\n", result.returnCode);
         return;
     }
 
-    printf("returnCode: %lld\nIs voted: %s\nVote: %s\n", result.returnCode, result.isVoted > 0 ? "yes": "no", result.votingDecision > 0 ? "yes": "no");
+    printf("returnCode: %I64d\nIs voted: %s\nVote: %s\n", result.returnCode, result.isVoted > 0 ? "yes": "no", result.votingDecision > 0 ? "yes": "no");
 }
